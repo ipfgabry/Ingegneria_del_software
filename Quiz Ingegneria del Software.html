@@ -1,0 +1,1132 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz Ingegneria del Software</title>
+<style>
+:root{
+  --bg:#f5f6f8; --card:#ffffff; --text:#1b1f27; --muted:#5d6675; --line:#e2e5ea;
+  --accent:#2f5bd3; --accent-soft:#e8eefc; --ok:#1d8a4b; --ok-soft:#e3f5ea; --ko:#c43a31; --ko-soft:#fbe8e6;
+  --warn:#9a6a00; --warn-soft:#fff4d6; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12151b; --card:#1b1f27; --text:#e7e9ee; --muted:#9aa3b2; --line:#2c323d;
+  --accent:#7d9cff; --accent-soft:#232c44; --ok:#4cc584; --ok-soft:#173226; --ko:#ff7a70; --ko-soft:#3a1d1b;
+  --warn:#f0c14b; --warn-soft:#3a3018; --shadow:none;
+}}
+:root[data-theme="dark"]{
+  --bg:#12151b; --card:#1b1f27; --text:#e7e9ee; --muted:#9aa3b2; --line:#2c323d;
+  --accent:#7d9cff; --accent-soft:#232c44; --ok:#4cc584; --ok-soft:#173226; --ko:#ff7a70; --ko-soft:#3a1d1b;
+  --warn:#f0c14b; --warn-soft:#3a3018; --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+h1{font-size:22px;margin:0}
+h2{font-size:17px;margin:0 0 12px}
+.sub{color:var(--muted);font-size:14px;margin:2px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:9px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.small{padding:6px 10px;font-size:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mode{text-align:left;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:14px;cursor:pointer;color:var(--text);font:inherit}
+.mode:hover{border-color:var(--accent)}
+.mode b{display:block;margin-bottom:2px}
+.mode span{color:var(--muted);font-size:14px}
+.mode.star{border-color:var(--warn);background:var(--warn-soft)}
+.mode.star span{color:var(--text);opacity:.8}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;cursor:pointer;user-select:none;background:var(--card)}
+.chip input{margin:0;accent-color:var(--accent)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent)}
+.chip small{color:var(--muted)}
+label.inline{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+select,input[type=number]{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 16px}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+.meta{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:14px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px;margin-right:6px}
+.tag.e{background:var(--warn-soft);color:var(--warn)}
+.tag.n{background:var(--accent-soft);color:var(--accent)}
+.tag.t{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.q{font-size:18px;font-weight:600;margin:12px 0 16px;white-space:pre-wrap}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;text-align:left;width:100%;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:12px 14px;font:inherit;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{flex:none;width:24px;height:24px;border-radius:6px;background:var(--bg);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--muted)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--ko);background:var(--ko-soft)}
+.opt:disabled{cursor:default}
+.expl{margin-top:14px;border-radius:10px;padding:12px 14px;font-size:15px}
+.expl.ok{background:var(--ok-soft)}
+.expl.ko{background:var(--ko-soft)}
+.expl b{display:block;margin-bottom:4px}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.score{font-size:40px;font-weight:800;margin:4px 0}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+.stat{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-size:20px}
+.stat span{color:var(--muted);font-size:13px}
+.review-item{border-top:1px solid var(--line);padding:12px 0}
+.review-item:first-child{border-top:0}
+.review-item .ok{color:var(--ok);font-weight:600}
+.review-item .ko{color:var(--ko);font-weight:600}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}
+.answer{margin-top:14px;padding:14px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.answer ul{margin:6px 0;padding-left:20px}
+.answer pre{overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;line-height:1.4;margin:8px 0}
+.answer h4{margin:12px 0 4px;font-size:15px}
+textarea{width:100%;min-height:160px;font:14px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);resize:vertical}
+.topicbars .tb{display:grid;grid-template-columns:minmax(120px,260px) 1fr 52px;gap:10px;align-items:center;font-size:14px;margin:6px 0}
+.topicbars .track{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.topicbars .track i{display:block;height:100%;background:var(--ok)}
+.hint{color:var(--muted);font-size:13px}
+.hidden{display:none!important}
+.ref{margin-top:8px;font-size:14px;color:var(--muted)}
+.ref b{display:inline;color:var(--text)}
+.sheet-q{border-top:1px solid var(--line);padding:12px 0}
+.sheet-q:first-of-type{border-top:0}
+.sheet-q .qq{font-weight:600;white-space:pre-wrap}
+.sheet-q .aa{color:var(--ok);font-weight:600;margin-top:4px}
+.sheet-q .ee{color:var(--muted);font-size:14px;margin-top:4px}
+.kbd{font-size:12px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted)}
+@media print{ body{background:#fff;color:#000} .noprint,header{display:none!important} .card{box-shadow:none;border:1px solid #ccc;break-inside:auto} .sheet-q{break-inside:avoid} }
+@media (max-width:520px){ .q{font-size:17px} .topicbars .tb{grid-template-columns:1fr 1fr 44px} .wrap{padding-top:16px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Quiz Ingegneria del Software</h1>
+      <p class="sub">Design pattern, UML, processi, Java funzionale · domande dei compiti passati + nuove dalle slide</p>
+    </div>
+    <button class="btn small ghost" id="themeBtn" title="Cambia tema">◐ Tema</button>
+  </header>
+
+  <!-- HOME -->
+  <section id="home">
+    <div class="card">
+      <h2>Argomenti</h2>
+      <div class="chips" id="topicChips"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn small" id="allTopics">Tutti</button>
+        <button class="btn small" id="noTopics">Nessuno</button>
+        <label class="inline">Origine
+          <select id="srcSel">
+            <option value="all">Tutte le domande</option>
+            <option value="e">Solo uscite ai compiti</option>
+            <option value="n">Solo nuove</option>
+          </select>
+        </label>
+        <label class="inline">N. domande <input type="number" id="nQ" min="5" max="400" value="20" style="width:76px"></label>
+      </div>
+      <p class="hint" id="poolInfo" style="margin:10px 0 0"></p>
+    </div>
+
+    <div class="modes">
+      <button class="mode star" id="mReal"><b>★ Solo domande dei compiti</b><span id="realInfo"></span></button>
+      <button class="mode star" id="mOpen"><b>★ Esercizi di codice e UML</b><span>Le tracce aperte uscite (Factory Method, Facade, stream...) con soluzione completa.</span></button>
+      <button class="mode star" id="mSheet"><b>★ Scheda di ripasso</b><span>Domande dei compiti con risposta, divise per argomento (stampabile).</span></button>
+      <button class="mode" id="mExam"><b>Simulazione test</b><span>16 domande a risposta multipla, 30 minuti, risultato alla fine.</span></button>
+      <button class="mode" id="mPractice"><b>Allenamento</b><span>Correzione e spiegazione subito dopo ogni risposta.</span></button>
+      <button class="mode" id="mWrong"><b>Ripassa gli errori</b><span id="wrongInfo"></span></button>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>I tuoi progressi</h2>
+      <div class="topicbars" id="progress"></div>
+      <div class="row" style="margin-top:10px"><button class="btn small ghost" id="resetStats">Azzera progressi</button></div>
+    </div>
+    <p class="hint">Le domande «uscite ai compiti» sono trascritte dalle foto e dai PDF dei compiti 20220630 (n.52 e n.53), 20220721 e 20240325. Dove la risposta non è certa trovi un ⚠ nella spiegazione. Tasti rapidi: <span class="kbd">1</span>–<span class="kbd">4</span> per rispondere, <span class="kbd">Invio</span> per andare avanti.</p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="hidden">
+    <div class="card">
+      <div class="meta"><span id="qCount"></span><span id="qScore"></span><span class="timer hidden" id="timer"></span></div>
+      <div class="bar"><i id="qBar"></i></div>
+      <div><span class="tag" id="qSrc"></span><span class="tag t" id="qTopic"></span></div>
+      <div class="q" id="qText"></div>
+      <div class="opts" id="qOpts"></div>
+      <div id="qExpl"></div>
+      <div class="nav">
+        <button class="btn ghost" id="quitBtn">Esci</button>
+        <div class="row">
+          <button class="btn" id="prevBtn">← Indietro</button>
+          <button class="btn primary" id="nextBtn">Avanti →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="hidden">
+    <div class="card">
+      <h2 id="resTitle">Risultato</h2>
+      <div class="score" id="resScore"></div>
+      <div class="stat-grid" id="resStats"></div>
+      <div class="row"><button class="btn primary" id="againBtn">Nuovo quiz</button><button class="btn" id="retryWrongBtn">Rifai solo le sbagliate</button><button class="btn ghost" id="homeBtn">Home</button></div>
+    </div>
+    <div class="card"><h2>Revisione</h2><div id="resReview"></div></div>
+  </section>
+
+  <!-- SHEET -->
+  <section id="sheet" class="hidden">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Scheda di ripasso — domande uscite ai compiti</h2>
+        <div class="row noprint"><button class="btn small" id="sheetPrint">Stampa / PDF</button><button class="btn small ghost" id="sheetHome">Home</button></div>
+      </div>
+      <p class="hint">Per ogni domanda: risposta corretta, spiegazione e compito di provenienza.</p>
+    </div>
+    <div id="sheetBody"></div>
+  </section>
+
+  <!-- OPEN -->
+  <section id="open" class="hidden">
+    <div class="card">
+      <div class="meta"><span id="oCount"></span></div>
+      <div class="bar"><i id="oBar"></i></div>
+      <div><span class="tag" id="oSrc"></span><span class="tag t" id="oTopic"></span></div>
+      <div class="q" id="oText"></div>
+      <textarea id="oInput" placeholder="Scrivi qui il tuo codice / la tua risposta e poi confrontala con la soluzione…" spellcheck="false"></textarea>
+      <div class="answer hidden" id="oAnswer"></div>
+      <div class="nav">
+        <button class="btn ghost" id="oQuit">Esci</button>
+        <div class="row">
+          <button class="btn" id="oPrev">← Indietro</button>
+          <button class="btn" id="oShow">Mostra soluzione</button>
+          <button class="btn primary" id="oNext">Avanti →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// t = argomento, s = "e" (uscita ai compiti) | "n" (nuova, dalle slide), a = indice risposta corretta, f = non mescolare le opzioni
+const TOPICS = {
+  P: "Pattern creazionali",
+  S: "Pattern strutturali",
+  B: "Pattern comportamentali",
+  O: "OOP, principi e refactoring",
+  U: "UML",
+  X: "Processi: cascata, XP, Scrum",
+  J: "Java funzionale: lambda e stream",
+  T: "Testing e metriche"
+};
+
+const QUESTIONS = [
+// ======================= DOMANDE DEI COMPITI =======================
+// ---- Compito 20240325 ----
+{t:"S",s:"e",r:"Compito 20240325, n.1 — Bridge",q:"Il design pattern Bridge permette alla classe client di",o:["Non tenere riferimenti","Tenere riferimenti a oggetti che sono sottotipi di Implementor","Tenere alcuni riferimenti a oggetti sottotipi di Implementor","Non dover chiamare i metodi di Implementor"],a:3,e:"Il client lavora solo con l'Abstraction, che compone un Implementor e gli delega il lavoro. Il client non chiama mai direttamente i metodi di Implementor."},
+{t:"B",s:"e",r:"Compito 20240325, n.2 — Observer",q:"Per il design pattern Observer, il Subject",o:["Invia il riferimento a se stesso","Implementa un metodo update","Chiama un metodo e non passa parametri a tale metodo","E' una classe astratta o un'interfaccia"],a:3,e:"Subject è il ruolo astratto (con attach, detach, notify); update() è implementato dagli Observer. ⚠ Nella modalità pull il subject può anche passare this, ma la risposta attesa è la (d)."},
+{t:"B",s:"e",r:"Compito 20240325, n.3 — Mediator",q:"Quando si usa il Mediator",o:["Le classi sono più accoppiate","Le classi sono più coese","Una classe deve conoscere poche classi","Una classe deve conoscere tante classi"],a:2,e:"Con il Mediator ogni collega conosce solo il mediator (legge di Demeter, vedi anche il compito 20220630 n.53). ⚠ Domanda ambigua: la (d) descrive la situazione di partenza, non l'effetto."},
+{t:"X",s:"e",r:"Compito 20240325, n.4 — Pair programming (XP)",q:"Rispetto a programmare singolarmente, l'effetto del pair programming è",o:["Produrre adeguata documentazione","Rallentare lo sviluppo del sistema","Produrre meno codice","Produrre più codice"],a:3,e:"Secondo le slide, lavorando in due si parallelizza il lavoro e si ottimizzano i tempi. ⚠ La letteratura discute anche l'effetto sulla qualità: ripassa cosa dicono le tue slide su driver e navigator."},
+{t:"X",s:"e",r:"Compito 20240325, n.5; 20220630 n.53 n.7 — Progettazione",q:"La fase di progettazione produce e documenta",o:["Le specifiche del software","Le modalità di utilizzo del software","Le funzionalità del software","La struttura del software che realizza le specifiche"],a:3,e:"Analisi dei requisiti → specifiche (cosa); progettazione → struttura/architettura che le realizza (come)."},
+{t:"S",s:"e",r:"Compito 20240325, n.6 — Composite",q:"Per il design pattern Composite, il ruolo Composite",o:["Chiama metodi su istanze di sottotipi di Component","Deve conoscere il tipo della classe client","Non deve conoscere più di un riferimento","Deve conoscere il tipo dell'oggetto semplice"],a:0,e:"Il Composite tiene un aggregato di Component e richiama ricorsivamente l'operazione su di essi, senza conoscere se sono Leaf o altri Composite."},
+{t:"S",s:"e",r:"Compito 20240325, n.7 — Facade",q:"Il design pattern Facade",o:["Fa aumentare le linee di codice delle classi che chiamano operazioni sul Facade","Semplifica le classi che chiamano operazioni sul Facade","Fa sì che alcune classi diventino strettamente accoppiate","Si usa quando si hanno funzionalità simili fra varie classi"],a:1,e:"Il Facade offre un'interfaccia semplificata al sottosistema e istanzia gli oggetti per il client, riducendo le dipendenze."},
+{t:"S",s:"e",r:"Compito 20240325, n.8; 20220721 n.7 — Object Adapter",q:"La soluzione per il design pattern Object Adapter avrà",o:["Una istanza per ciascun ruolo Adapter, Adaptee, Target","Solo una istanza per il ruolo Adapter","Nessuna istanza","Una istanza per ciascun ruolo Adapter e Adaptee"],a:3,e:"Target è un'interfaccia/classe astratta (non si istanzia); l'Adapter compone un'istanza di Adaptee. Quindi istanze di Adapter e di Adaptee."},
+{t:"P",s:"e",r:"Compito 20240325, n.9 — Prototype",q:"Quale delle seguenti è uno svantaggio dell'applicazione del pattern Prototype?",o:["Il client non conosce il tipo concreto di prodotto usato, quindi ne è indipendente","Il prototipo deve essere istanziato","Per gli oggetti da usare come prototipi devo implementare in più il metodo clone()","Si implementa un flusso di esecuzione più difficile da comprendere"],a:2,e:"Ogni classe prototipo deve implementare clone() (e, per una deep copy, clonare ricorsivamente i componenti). L'indipendenza dal tipo concreto è un vantaggio."},
+{t:"P",s:"e",r:"Compito 20240325, n.10 — Singleton",q:"Il Singleton e le sue varianti indicano sempre",o:["Un'unica istanza di una certa classe","Un numero di istanze pari a 2","Un numero di istanze dipendenti dalla memoria disponibile","Un numero di istanze deciso dalla classe Singleton"],a:3,e:"La logica di getInstance() può essere modificata per gestire anche più di una istanza (pool): è la classe a decidere il numero."},
+{t:"B",s:"e",r:"Compito 20240325, n.11; 20220630 n.52 n.14 — Chain of Responsibility",q:"Per il design pattern Chain of Responsibility, il destinatario di una richiesta",o:["Non conosce il tipo a runtime successivo nella catena","Conosce il tipo a runtime successivo nella catena","Ha il riferimento dell'elemento che lo precede nella catena","Ha informazioni sul numero di elementi della catena"],a:0,e:"L'handler conosce solo il tipo astratto Handler del successor, non quale ConcreteHandler sia. ⚠ Nelle foto dei compiti qualcuno ha segnato la (b): se la tua slide dice altro, fidati delle slide."},
+{t:"B",s:"e",r:"Compito 20240325, n.12 — State",q:"Un vantaggio del design pattern State è",o:["Avere in un unico posto la logica che cambia lo stato","Avere una classe che nasconde un sottosistema","Ridurre il numero di classi che implementano un certo comportamento","Eliminare invocazioni indirette tra il client e gli oggetti usati"],a:0,e:"Ogni ConcreteState incapsula il comportamento (e le transizioni) di uno stato. (b) è il Facade; con lo State le classi aumentano, non diminuiscono."},
+{t:"O",s:"e",r:"Compito 20240325, n.13 — Refactoring: Estrai Metodo",q:"La tecnica di refactoring Estrai Metodo si applica",o:["A classi che hanno tanti attributi e tanti metodi","Principalmente ai metodi che hanno tante responsabilità","Solo ai metodi lunghi","Alle classi grandi"],a:1,e:"Si estrae un frammento in un metodo il cui nome ne spiega lo scopo: tipicamente da metodi con più responsabilità (e quindi lunghi). «Solo» rende la (c) sbagliata."},
+{t:"O",s:"e",r:"Compito 20240325, n.14 — Classi grandi",q:"Una classe con tante linee di codice e tante responsabilità",o:["Serve ad avviare operazioni su altre classi","Contribuisce a diminuire la complessità di altre classi","Serve a creare istanze di oggetti","È molto complessa"],a:3,e:"Viola il principio di singola responsabilità: è complessa e poco coesa."},
+{t:"U",s:"e",r:"Compito 20240325, n.15 — UML di interazione (collaborazione)",q:"Nei diagrammi UML di interazione (o collaborazione)",o:["Le classi sono nodi di un grafo e le relazioni tra classi sono frecce","Gli oggetti sono allineati nella prima riga in alto","L'oggetto è un nodo di un grafo e le interazioni sono frecce","L'interazione tra oggetti è una linea con sopra una freccia numerata"],a:3,e:"Nel diagramma di collaborazione il flusso dei messaggi è indicato da frecce numerate accanto alle associazioni tra istanze. (a) descrive il diagramma delle classi, (b) il diagramma di sequenza. ⚠ La (c) è vicina: la (d) è più precisa."},
+{t:"S",s:"e",r:"Compito 20240325, n.16 — Decorator",q:"Per una certa implementazione, il design pattern Decorator",o:["Può fornire una lista delle istanze di classi del pattern","Richiede tipicamente tante classi client","Richiede di implementare metodi con lo stesso nome su classi diverse","Lascia che i nomi dei metodi pubblici siano scelti indipendentemente fra le classi"],a:2,e:"Component, ConcreteComponent e Decorator condividono la stessa interfaccia: operation() esiste con lo stesso nome in tutte."},
+
+// ---- Compito 20220721 ----
+{t:"U",s:"e",r:"Compito 20220721, n.1 — Diagramma delle classi",q:"Le relazioni dei diagrammi UML delle classi indicano",o:["I metodi chiamati da una certa classe","Le classi usate da una certa classe","Gli oggetti usati da un certo oggetto","Gli oggetti usati da una certa classe"],a:1,e:"Il diagramma delle classi è statico e parla di classi (non di oggetti): le relazioni dicono quali classi ne usano/estendono altre."},
+{t:"B",s:"e",r:"Compito 20220721, n.2 — Mediator",q:"Un vantaggio del Mediator è",o:["Fornire un'unica semplice interfaccia","Rendere un sistema fortemente connesso","Aumentare la specializzazione delle classi","Ridurre la specializzazione delle classi"],a:3,e:"Il mediator centralizza le interazioni: i colleghi diventano più semplici, indipendenti e riusabili. (a) è il Facade, (b) è l'opposto del Mediator. ⚠ Risposta per esclusione."},
+{t:"O",s:"e",r:"Compito 20220721, n.3 — Riuso per ereditarietà",q:"Il riuso tramite ereditarietà può essere fatto quando",o:["Si comprende il codice della superclasse","Si vogliono avere tante classi","Si conosce il solo nome della superclasse","Si vogliono avere metodi overloaded"],a:0,e:"L'ereditarietà è un riuso «white-box»: per derivare serve capire il codice della superclasse. Con la composizione basta conoscere l'interfaccia."},
+{t:"O",s:"e",r:"Compito 20220721, n.4 — Spaghetti code",q:"Spaghetti code indica che il codice",o:["Deriva da buone regole di progettazione","Deriva dalla progettazione ad oggetti","Ha metodi lunghi","Ha tante piccole operazioni"],a:2,e:"Anti-pattern: metodi lunghi, senza parametri, con variabili globali, flusso cablato in un'implementazione monolitica."},
+{t:"B",s:"e",r:"Compito 20220721, n.5 — Observer",q:"Uno dei vantaggi del design pattern Observer è",o:["Isolare alcune classi","Ridurre il numero totale di chiamate di metodo","Ridurre il numero di classi implementate","Isolare il codice che chiama metodi di varie classi"],a:3,e:"Il Subject non dipende dai tipi degli Observer: il codice che notifica è isolato dalle classi reattive."},
+{t:"X",s:"e",r:"Compito 20220721, n.6 — Processo a cascata",q:"È consigliabile usare il processo a cascata quando",o:["Si vuol informare il cliente con documenti precisi durante lo sviluppo","Si vogliono produrre sistemi software di piccole o medie dimensioni","Si vogliono produrre documenti precisi per requisiti, progettazione, etc.","Si vuole adattare continuamente il prodotto alle richieste del cliente"],a:2,e:"Il waterfall è adatto a progetti grandi, con requisiti stabili, dove ogni fase produce artefatti documentati e privi di errori. Piccoli progetti → evolutivo; richieste continue → agile."},
+{t:"S",s:"e",r:"Compito 20220721, n.8; foto 20220721 — Facade",q:"Un vantaggio offerto dal design pattern Facade è",o:["Ridurre le dipendenze fra client e Facade","Ridurre il numero di classi","Ridurre le dipendenze fra Facade e classi del sottosistema","Ridurre le dipendenze fra client e classi del sottosistema"],a:3,e:"Il client dipende solo dal Facade e non più dalle singole classi del sottosistema."},
+{t:"X",s:"e",r:"Compito 20220721, n.9 — XP",q:"Nel processo XP",o:["I test sono scritti prima o durante l'implementazione delle funzionalità","E' raccomandato usare l'UML","Il cliente collabora durante l'ispezione del codice","È suggerito lavorare 48 ore la settimana"],a:0,e:"XP è test-driven. L'unica documentazione è il codice (più CRC cards); la settimana è di 40 ore."},
+{t:"S",s:"e",r:"Compito 20220721, n.10 — Composite: trasparenza e sicurezza",q:"Per il design pattern Composite",o:["Si ha sicurezza quando si autentica l'utente","Si possono ottenere trasparenza e sicurezza nella stessa versione","Si ha trasparenza quando il client distingue oggetti semplici e composti","La versione che fornisce trasparenza non può fornire sicurezza"],a:3,e:"Se add()/remove() stanno in Component c'è trasparenza (il client non distingue) ma errori a runtime sulle Leaf; se stanno solo in Composite c'è sicurezza a compile time ma si perde la trasparenza."},
+{t:"O",s:"e",r:"Compito 20220721, n.11 — Late binding",q:"La classe C contiene i metodi m1() e m2(). Quando m1() chiama m2()",o:["Si esegue il metodo di C o quello di una sua superclasse","Si esegue sicuramente il metodo di C","Si esegue il metodo che il compilatore ha individuato","Si esegue il metodo di C o quello di una sua sottoclasse"],a:3,e:"this.m2() è risolto a runtime sul tipo effettivo dell'oggetto: può essere un override in una sottoclasse (late binding / template method)."},
+{t:"P",s:"e",r:"Compito 20220721, n.12 — Prototype",q:"Quale delle seguenti NON è una caratteristica del pattern Prototype?",o:["Se clono un prototipo in modalità shallow le copie potrebbero interferire l'una con l'altra","Il prototipo è istanziato esternamente e poi passato come parametro","Ho una potenziale perdita di efficienza per l'aumento del numero delle classi","Quando la creazione di nuove istanze è costosa, clonando miglioro la performance"],a:2,e:"Il Prototype riduce il numero di classi (basta configurare istanze diverse): è la proliferazione di classi il problema del Factory Method."},
+{t:"S",s:"e",r:"Compito 20220721, n.13 — Decorator",q:"Per il design pattern Decorator, il ruolo Decorator",o:["Tiene un riferimento","E' una classe astratta","Può essere un'interfaccia","E' un'interfaccia"],a:0,e:"Decorator ha un riferimento privato a un Component (il successivo nella catena): un'interfaccia non può avere attributi non final."},
+{t:"B",s:"e",r:"Compito 20220721, n.14 — State",q:"Nel design pattern State, l'istanza di un sottotipo di State",o:["Cambia classe, all'occorrenza","Non è conosciuta dalle classi client","È riferita dal tipo State","È creata da classi client"],a:2,e:"Il Context tiene un riferimento di tipo State; l'istanza concreta è scambiata dal Context o dagli stati stessi, non dal client."},
+{t:"B",s:"e",r:"Compito 20220721, n.16 — Chain of Responsibility",q:"Per il design pattern Chain of Responsibility",o:["Le classi richiedenti devono essere più di una","I possibili riceventi sono più di uno","Si richiede di implementare tanti metodi per ciascuna classe ricevente","Si ha che il numero di richiedenti è pari al numero di riceventi"],a:1,e:"Ha senso solo se più handler possono (anche in modo generico) soddisfare la richiesta."},
+
+// ---- Compito 20220630 n.53 ----
+{t:"U",s:"e",r:"Compito 20220630 n.53, n.1 — Diagramma degli stati",q:"Nei diagrammi UML degli stati, i nomi degli stati sono indicati",o:["All'interno di rettangoli senza angoli arrotondati","All'interno di rettangoli con angoli arrotondati","Sopra i rettangoli con angoli arrotondati","Alle estremità delle frecce delle transizioni"],a:1,e:"Gli stati sono rettangoli con angoli arrotondati; le frecce etichettate sono gli eventi/transizioni."},
+{t:"B",s:"e",r:"Compito 20220630 n.53, n.2 — Observer",q:"Il design pattern Observer è consigliabile quando",o:["Si vuol separare bene il codice di due classi","Si vuol chiamare un metodo di un'altra classe","Si vuol tenere coerente lo stato di una classe con quello di un'altra classe","Si vuol tenere separato lo stato di due oggetti"],a:2,e:"Observer = coerenza di stato tra subject e observer senza legami statici."},
+{t:"S",s:"e",r:"Compito 20220630 n.53, n.3; n.52 n.16 — Decorator",q:"Il design pattern Decorator permette",o:["Di aggiungere o togliere un piccolo compito ad una classe","Solo di aggiungere un piccolo compito ad una classe","Di togliere un metodo ad una classe","Di ridefinire un metodo di una classe"],a:0,e:"Si può aggiungere o togliere funzionalità a runtime cambiando la catena di decorator."},
+{t:"S",s:"e",r:"Compito 20220630 n.53, n.4 — Bridge",q:"Il design pattern Bridge permette alla classe client di",o:["Tenere alcuni riferimenti a oggetti sottotipi di Implementor","Non tenere riferimenti","Non dover chiamare i metodi di Implementor","Tenere riferimenti a oggetti che sono sottotipi di Implementor"],a:2,e:"Stessa domanda del compito 20240325: il client si appoggia all'Abstraction e non chiama Implementor."},
+{t:"S",s:"e",r:"Compito 20220630 n.53, n.5 — Facade",q:"La classe che ha il ruolo Facade ha",o:["Una sola classe nel sottosistema","Nessuna classe client, difatti il Facade potrebbe avere il metodo main","Una sola classe client","Un certo numero di classi client"],a:3,e:"Il Facade serve proprio a più client che dipendono da un sottosistema."},
+{t:"X",s:"e",r:"Compito 20220630 n.53, n.6 — XP: release",q:"Tipicamente per il processo XP, le release del software avvengono",o:["Una release alla settimana","Una release ogni 2 settimane","Una release ogni 3 settimane","Una release ogni 4 settimane"],a:1,e:"Rilasci rapidi, di solito ogni 1 o 2 settimane (4 settimane sono da evitare). ⚠ Le slide danno 1-2 settimane: se compare solo una delle due, scegli quella."},
+{t:"S",s:"e",r:"Compito 20220630 n.53, n.8 — Adapter",q:"Il design pattern Adapter serve a",o:["Convertire una interfaccia di una classe in un'altra","Convertire il tipo di una variabile","Cambiare l'interfaccia di una classe a runtime","Usare due nomi per una stessa classe"],a:0,e:"Converte l'interfaccia di una classe in quella che il client si aspetta, senza aggiungere funzionalità."},
+{t:"P",s:"e",r:"Compito 20220630 n.53, n.9 — Factory Method",q:"Si abbia il frammento di codice: public Libro getLibro() { return new Book(); }",o:["Il frammento sta svolgendo il ruolo di un Factory Method","Il frammento sta svolgendo il ruolo di un Singleton","Il codice non è compilabile","Il codice dovrebbe essere all'interno di una superclasse"],a:0,e:"Un metodo che istanzia e restituisce un prodotto con tipo di ritorno astratto (Libro) è un factory method."},
+{t:"B",s:"e",r:"Compito 20220630 n.53, n.10 — Chain of Responsibility",q:"Per il design pattern Chain of Responsibility",o:["I possibili riceventi sono più di uno","Le classi richiedenti devono essere più di una","Si ha che il numero di richiedenti è pari al numero di riceventi","Si richiede di implementare tanti metodi per ciascuna classe ricevente"],a:0,e:"Vedi compito 20220721 n.16."},
+{t:"B",s:"e",r:"Compito 20220630 n.53, n.11 — Command",q:"Quale delle seguenti è uno svantaggio dell'uso del pattern Command?",o:["Gli stessi comandi potrebbero essere generati da elementi diversi dell'interfaccia","Si deve usare il pattern Singleton per imporre un gestore unico dei comandi","Si potrebbero penalizzare le prestazioni a causa dell'indirezione introdotta","I comandi ancora non eseguiti potrebbero essere anche annullati"],a:2,e:"Svantaggi del Command: proliferazione di classi, chiamate indirette, maggior complessità. Poter annullare comandi (undo) è un vantaggio."},
+{t:"O",s:"e",r:"Compito 20220630 n.53, n.12 — Che cosa sono i pattern",q:"I design pattern sono strutture",o:["Create appositamente quando si risolve un nuovo problema","Per un piccolo numero di classi","Utili alla fase di raccolta ed analisi dei requisiti","Per un grande numero di classi"],a:1,e:"Un pattern organizza poche classi che interagiscono per risolvere un problema ricorrente: è una soluzione collaudata, non creata ad hoc. ⚠ Compito 20220630 n.52 n.12 chiede: «soluzione collaudata per un certo numero di problemi»."},
+{t:"B",s:"e",r:"Compito 20220630 n.53, n.13 — Mediator e Demeter",q:"Quale legge è soddisfatta quando si usa il Mediator?",o:["La legge di Murphy","La prima legge di Lehman","La legge di Demeter","La legge sui grandi numeri"],a:2,e:"Ogni collega parla solo con il mediator (un solo punto, niente b.c.m())."},
+{t:"O",s:"e",r:"Compito 20220630 n.53, n.14 — Spaghetti code",q:"Per un sistema che è Spaghetti code",o:["Il codice è stato creato insieme al cliente","Si hanno classi con tanti metodi","E' stata seguita la progettazione ad oggetti","Non è possibile far test"],a:1,e:"Classi/metodi monolitici che violano la singola responsabilità; non è stata seguita la progettazione a oggetti."},
+{t:"S",s:"e",r:"Compito 20220630 n.53, n.15 — Composite",q:"Per il design pattern Composite, si ha trasparenza quando il client",o:["Distingue oggetti semplici e composti","Può usare oggetti semplici o composti","Non deve distinguere fra oggetti semplici e composti","Non può usare oggetti semplici o composti"],a:2,e:"Trasparenza = tratta Leaf e Composite uniformemente tramite Component."},
+{t:"B",s:"e",r:"Compito 20220630 n.53, n.16 — State e condizionali",q:"Per eliminare le istruzioni condizionali",o:["Si possono inserire le precondizioni","Si potrebbe usare il design pattern Facade","Si potrebbe usare il design pattern Singleton","Si potrebbe usare il design pattern State"],a:3,e:"Ogni ramo dello switch sullo stato diventa una classe ConcreteState (replace conditional with polymorphism)."},
+
+// ---- Compito 20220630 n.52 ----
+{t:"B",s:"e",r:"Compito 20220630 n.52, n.1 — Mediator",q:"Il design pattern Mediator fa sì che le classi siano",o:["Più numerose","Più semplici da comprendere","Più coese","Meno accoppiate"],a:3,e:"Il mediator sostituisce le interdipendenze con dipendenze verso un solo oggetto: meno accoppiamento."},
+{t:"P",s:"e",r:"Compito 20220630 n.52, n.4 — Factory Method",q:"Il Factory Method può servire quando si vogliono usare",o:["Costruttori new direttamente nel client","Classi concrete senza interfacce","Interfacce e classi che le implementano, dipendendo dalle interfacce","Solo classi senza relazioni fra loro"],a:2,e:"Il client dipende dall'astrazione (Product/Creator) e non dalla classe concreta da istanziare. ⚠ Opzioni riscritte dalla foto: l'idea è «programmare per interfacce»."},
+{t:"X",s:"e",r:"Compito 20220630 n.52, n.6 — XP: possesso collettivo",q:"Nel processo XP, uno sviluppatore può modificare",o:["Solo il codice implementato da lui","Il codice solo prima di integrarlo al resto del sistema","Il codice implementato da altri","Solo il codice che non supera i test"],a:2,e:"Possesso collettivo del codice: tutti possono modificare qualunque parte (con i test che proteggono). ⚠ Opzioni riscritte dalla foto."},
+{t:"B",s:"e",r:"Compito 20220630 n.52, n.8 — Observer",q:"Uno dei vantaggi del design pattern Observer è",o:["Rendere una classe indipendente dal numero di classi con cui interagisce","Ridurre il numero di classi implementate","Isolare alcune classi","Ridurre il numero totale di chiamate di metodo"],a:0,e:"Il Subject non conosce quanti e quali Observer ci siano."},
+{t:"S",s:"e",r:"Compito 20220630 n.52, n.9 — Class Adapter",q:"La soluzione suggerita dal design pattern Class Adapter",o:["Non ha un'istanza all'interno del ruolo Adapter","Istanzia una classe all'interno del ruolo Adapter","Non si può implementare in Java","Cambia una classe incompatibile modificandone i metodi"],a:0,e:"Nel class adapter l'Adapter è anche Adaptee (per ereditarietà): non compone un Adaptee, a differenza dell'object adapter."},
+{t:"X",s:"e",r:"Compito 20220630 n.52, n.10 — Processi di sviluppo",q:"Potenzialmente si producono sistemi di migliore qualità tramite",o:["Il processo Build and fix","Il processo basato su COTS","Tutti i processi di sviluppo, se ben usati","Il processo a Cascata"],a:2,e:"Nessun processo è migliore in assoluto: dipende dal contesto e da come lo si applica."},
+{t:"O",s:"e",r:"Compito 20220630 n.52, n.11 — Efficienza",q:"Con efficienza del software si intende",o:["Facilità d'uso per gli utenti","Facilità di apportare cambiamenti per soddisfare nuove esigenze","Aderenza allo scopo, conformità alle specifiche","Evitare sprechi di memoria e del processore"],a:3,e:"Efficienza = uso economico delle risorse. (c) è la correttezza, (b) la manutenibilità, (a) l'usabilità."},
+{t:"O",s:"e",r:"Compito 20220630 n.52, n.12 — Perché i pattern",q:"Quando si usano i design pattern si ottiene",o:["Riuso del codice","Una soluzione collaudata per un certo numero di problemi","Codice senza difetti","Meno classi sicuramente"],a:1,e:"Un pattern descrive una soluzione riutilizzabile a un problema ricorrente. ⚠ Opzioni riscritte dalla foto."},
+{t:"S",s:"e",r:"Compito 20220630 n.52, n.13 — Composite",q:"Per il design pattern Composite",o:["Il ruolo Composite è sottoclasse di Leaf","Leaf è sottoclasse di Composite","Il ruolo Composite implementa Component","Leaf conosce la classe che svolge il ruolo Composite"],a:2,e:"Composite e Leaf implementano entrambi Component; Composite tiene un aggregato di Component. ⚠ Opzioni riscritte dalla foto."},
+{t:"B",s:"e",r:"Compito 20220630 n.52, n.15 — State",q:"Il design pattern State permette in vari casi di",o:["Eliminare istruzioni condizionali","Spostare istruzioni condizionali, ma non ridurle o eliminarle","Tenere lo stato di un oggetto","Eliminare o ridurre indirettezze"],a:0,e:"Gli if/switch sullo stato scompaiono grazie al polimorfismo degli stati."},
+{t:"S",s:"e",r:"Compito 20220630 n.52, n.16 — Bridge",q:"Per il design pattern Bridge, il ConcreteImplementor",o:["Tiene un riferimento ad un oggetto Implementor","Dipende da una Abstraction","Dipende da una o più Abstraction","Implementa tipicamente una o più chiamate di metodo"],a:3,e:"Il ConcreteImplementor realizza le operazioni elementari dell'Implementor, chiamate dall'Abstraction. ⚠ Opzioni riscritte dalla foto."},
+
+// ---- Compito 20220721 (seconda foto) ----
+{t:"S",s:"e",r:"Compito 20220721 (foto) — Bridge",q:"Per il design pattern Bridge, Implementor",o:["Ha i metodi usati da Abstraction","Ha i metodi usati da RefinedAbstraction","Implementa una RefinedAbstraction","Implementa una Abstraction"],a:0,e:"Abstraction ha un riferimento a Implementor e ne usa i metodi (operazioni elementari)."},
+{t:"O",s:"e",r:"Compito 20220721 (foto) — Progettazione OO",q:"La progettazione orientata agli oggetti consiste nel",o:["Definire classi (dati ed operazioni) e relazioni tra esse","Individuare dati non primitivi utili per realizzare il sistema","Trovare le non funzionalità del sistema","Definire i requisiti del sistema"],a:0,e:"È la fase di design: classi con dati e operazioni e relazioni tra esse."},
+{t:"O",s:"e",r:"Compito 20220721 (foto) — Sistemi grandi",q:"In un sistema software di grandi dimensioni, vi sono",o:["Tanti metodi di grandi dimensioni","Tante classi e tanti metodi di piccole dimensioni","Poche classi e tanti metodi","Tante classi di grandi dimensioni"],a:1,e:"Singola responsabilità: classi e metodi piccoli e coesi."},
+{t:"B",s:"e",r:"Compito 20220721 (foto) — Mediator",q:"L'obiettivo del Mediator è avere",o:["Varie classi che non conoscono il Mediator","Interazioni distribuite su più classi","Interazioni per lo più isolate su una classe","Classi che si chiamano fra loro"],a:2,e:"Il mediator trasforma un algoritmo distribuito tra le classi in un algoritmo centralizzato in una classe."},
+{t:"P",s:"e",r:"Compito 20220721 (foto) — Factory Method",q:"Il Factory Method permette",o:["Di fornire una interfaccia per una famiglia di classi","La creazione di un'unica istanza per una certa classe","Di non istanziare oggetti, ma quando possibile di riusarli","Alle sottoclassi di una classe astratta di decidere quale classe istanziare"],a:3,e:"(a) è Abstract Factory, (b) Singleton."},
+{t:"B",s:"e",r:"Compito 20220721 (foto) — Chain of Responsibility",q:"Il design pattern Chain of Responsibility ha come obiettivo",o:["Limitare il numero di metodi di una classe","Limitare la dipendenza fra una classe richiedente e altre classi","Diminuire il numero di classi","Diminuire il numero di linee di codice"],a:1,e:"Disaccoppia chi invoca la richiesta da chi la serve."},
+{t:"B",s:"e",r:"Compito 20220721 (foto) — Observer",q:"Per il design pattern Observer, è possibile",o:["Eseguire metodi di Observer","Compilare Subject solo in presenza di Observer","Compilare Subject anche quando è presente il solo tipo Observer","Compilare la sottoclasse di Observer indipendentemente dal resto"],a:2,e:"Subject dipende solo dall'interfaccia Observer, non dai ConcreteObserver."},
+{t:"B",s:"e",r:"Compito 20220721 (foto) — State",q:"Nel design pattern State, ogni sottotipo di State",o:["Implementa un comportamento","Mantiene l'istanza del tipo State","Definisce l'interfaccia associata ad uno stato","Definisce l'interfaccia che usano le classi client"],a:0,e:"I ConcreteState implementano il comportamento associato a uno stato; l'interfaccia la definisce State."},
+{t:"U",s:"e",r:"Compito 20220721 (foto) — UML delle classi",q:"In UML, una classe può essere rappresentata da",o:["Un rettangolo contenente il nome dell'oggetto «:» ed il nome della classe","Un rettangolo contenente «class» ed il nome della classe","Un rettangolo contenente il nome della classe","Un rettangolo con bordi arrotondati contenente il nome della classe"],a:2,e:"(a) è un'istanza (oggetto), (d) è uno stato."},
+{t:"B",s:"e",r:"Compito 20220721 (foto) — Command",q:"Quale delle seguenti è un valido motivo per applicare il pattern Command?",o:["Quando è necessario istanziare oggetti il cui tipo è noto solo a runtime","Quando un sistema dovrebbe essere indipendente dal tipo di prodotto concreto che usa","Quando si vuole schedulare l'esecuzione dei comandi in parallelo","Quando si vuole implementare nell'applicazione il supporto alle macro"],a:3,e:"Command: incapsula richieste in oggetti → macro, undo, accodamento, logging. (a) è Factory Method/Prototype, (b) Abstract Factory."},
+
+// ======================= DOMANDE NUOVE (dalle slide) =======================
+// ---- Creazionali ----
+{t:"P",s:"n",q:"Nel Factory Method, chi sceglie quale ConcreteProduct istanziare?",o:["Il ConcreteCreator, nell'implementazione del factory method","Il client, con new","Il Product","Il compilatore"],a:0,e:"Il client usa Creator e Product astratti; il ConcreteCreator decide la classe concreta nel factory method."},
+{t:"P",s:"n",q:"Qual è uno svantaggio del Factory Method classico?",o:["Per ogni ConcreteProduct serve un nuovo ConcreteCreator: proliferazione di classi","Il client dipende dal ConcreteProduct","Non si può usare con le interfacce","Impone un'unica istanza di prodotto"],a:0,e:"Il client è riusabile, ma non le implementazioni dei creator, e le classi proliferano."},
+{t:"P",s:"n",q:"Il Factory Method si può rendere statico. Quale limite ne deriva?",o:["Non si può fare override del factory method","Il metodo non può restituire interfacce","Va istanziato un creator concreto","Il factory method diventa privato"],a:0,e:"I metodi statici non si ridefiniscono. In compenso non serve istanziare il creator né dichiarare un Creator astratto."},
+{t:"P",s:"n",q:"Quando conviene l'Abstract Factory?",o:["Quando il sistema va configurato con una tra più famiglie di prodotti correlati, da usare insieme","Quando serve una sola istanza globale","Quando serve clonare un oggetto","Quando bisogna navigare un aggregato"],a:0,e:"Impone ai client di usare un set coerente di prodotti (es. widget Mac vs Windows)."},
+{t:"P",s:"n",q:"Svantaggio dell'Abstract Factory:",o:["Il set di prodotti va identificato in fase di design: aggiungere nuovi tipi di prodotto è difficile","Il client dipende dai prodotti concreti","Richiede sempre la Reflection API","Non si può combinare con il Singleton"],a:0,e:"L'interfaccia della factory fissa i prodotti creabili: nuovi prodotti richiedono di modificare tutte le factory."},
+{t:"P",s:"n",q:"Con quali pattern si combina tipicamente l'Abstract Factory?",o:["Singleton (una sola factory) e Prototype (factory basata su prototipi)","Visitor e Iterator","Observer e Mediator","Decorator e Proxy"],a:0,e:"Slide «Combinazione con altri pattern»."},
+{t:"P",s:"n",q:"Per rendere privato l'accesso al costruttore e ottenere una sola istanza si usa il pattern:",o:["Singleton, con costruttore privato e metodo statico getInstance()","Prototype","Builder","Facade"],a:0,e:"Una variabile globale rende l'oggetto accessibile ma non unico: serve il costruttore privato."},
+{t:"P",s:"n",q:"Un vantaggio del Singleton rispetto a un oggetto con tutto static è che:",o:["Controlla come e quando si accede all'istanza e può gestire più istanze (pool)","È più veloce","Non usa memoria","Evita ogni dipendenza"],a:0,e:"È un meccanismo più potente di static: si può cambiare la logica di getInstance()."},
+{t:"P",s:"n",q:"Il Prototype crea nuovi oggetti:",o:["Clonando un'istanza esistente, configurabile poi negli attributi","Chiamando new su una classe nota a compile time","Ereditando da una classe astratta","Con un metodo statico"],a:0,e:"Product obj = prototype.clone(): il tipo concreto è noto solo a run-time."},
+{t:"P",s:"n",q:"In Java, il metodo clone() di Object:",o:["Crea una shallow copy; per una deep copy va ridefinito","Crea sempre una deep copy","Non richiede Cloneable","Non può sollevare eccezioni"],a:0,e:"Serve implementare Cloneable, altrimenti CloneNotSupportedException."},
+{t:"P",s:"n",q:"A cosa serve il prototype manager?",o:["A memorizzare i prototipi (di solito in una hash table) e restituire il clone corrispondente a una chiave","A clonare oggetti in parallelo","A rendere immutabili i prototipi","A creare factory astratte"],a:0,e:"prototypeManager.get(key).clone()"},
+{t:"P",s:"n",q:"Il Builder risolve il problema di:",o:["Assemblare una struttura complessa con una logica corretta, separando costruzione e rappresentazione","Clonare oggetti","Istanziare una sola copia","Adattare interfacce"],a:0,e:"In Java lo vediamo in Stream.builder(): add(...) ripetuto e poi build()."},
+{t:"P",s:"n",q:"Quale pattern permette di scrivere un client indipendente dalla classe concreta pur sapendo quando creare l'oggetto di servizio?",o:["Factory Method","Visitor","Iterator","Memento"],a:0,e:"Sappiamo quando creare l'oggetto, non quale classe istanziare: dipendenza spostata sul creator."},
+{t:"P",s:"n",q:"Dependency injection significa:",o:["Passare a una classe (es. nel costruttore) l'implementazione del servizio da usare, creando la dipendenza a runtime","Dichiarare tutte le dipendenze statiche","Eliminare le interfacce","Usare solo classi astratte"],a:0,e:"C myC = new C1(new S1()): la classe C non dipende da S1/S2."},
+
+// ---- Strutturali ----
+{t:"S",s:"n",q:"Cosa NON deve fare un Adapter?",o:["Aggiungere nuove funzionalità: converte soltanto l'interfaccia","Convertire chiamate verso l'Adaptee","Nascondere al client il metodo effettivamente chiamato","Comporre un Adaptee"],a:0,e:"Teoricamente non aggiunge funzionalità; può solo mappare/occultare il metodo chiamato."},
+{t:"S",s:"n",q:"Differenza tra class adapter e object adapter:",o:["Il class adapter sottoclassa l'Adaptee e consente l'override; l'object adapter compone l'Adaptee e può adattare più classi (anche sottoclassi) senza sottoclassare","Sono identici","L'object adapter richiede l'ereditarietà multipla","Il class adapter usa la composizione"],a:0,e:"Object adapter: non sa però quale sottoclasse specifica di Adaptee sta usando."},
+{t:"S",s:"n",q:"Il Facade, oltre a semplificare l'interfaccia, ha anche il compito di:",o:["Istanziare gli oggetti del sottosistema al posto del client","Nascondere totalmente l'esistenza delle classi del sottosistema","Aggiungere funzionalità nuove","Sostituire i client"],a:0,e:"Non occulta le classi del sottosistema (il client può ancora usarle), ma riduce le dipendenze."},
+{t:"S",s:"n",q:"Differenza tra Facade e Mediator:",o:["Il mediator incorpora la logica prima distribuita e può aggiungere funzioni, i colleghi lo conoscono; il facade non aggiunge funzionalità ed è rivolto ai client","Sono sinonimi","Il facade centralizza la logica, il mediator no","Il mediator è solo per le GUI"],a:0,e:"Facade semplifica l'accesso; Mediator coordina l'interazione tra colleghi."},
+{t:"S",s:"n",q:"Nel Composite, quale operazione Operation() svolge il Composite?",o:["Richiama ricorsivamente Operation() su tutti i Component di cui è aggregato","Chiama solo la Leaf più vicina","Non fa nulla","Crea nuove Leaf"],a:0,e:"È la ricorsione object-oriented; può essere dall'alto o dal basso a seconda dell'ordine tra chiamata ricorsiva e operazione sulla radice."},
+{t:"S",s:"n",q:"Dove andrebbero definiti add() e remove() per avere massima trasparenza nel Composite?",o:["In Component (con rischio di errori a runtime sulle Leaf)","Solo in Leaf","Solo nel client","Solo in Composite"],a:0,e:"In Composite soltanto si ha sicurezza ma si perde trasparenza."},
+{t:"S",s:"n",q:"Quale differenza c'è tra Decorator e State?",o:["Decorator aggiunge/sottrae funzionalità e il client vede l'oggetto cambiare; State sostituisce l'intera funzionalità in base allo stato interno","Sono identici","Il Decorator ha scope di classe, lo State di oggetto","Lo State aggiunge istanze solo quando serve"],a:0,e:"Inoltre nel Decorator le istanze si aggiungono solo se necessario, nello State servono tutti gli stati."},
+{t:"S",s:"n",q:"Nel Decorator, cosa fa l'operazione di base di un Decorator?",o:["Invoca operation() del suo successore","Restituisce null","Istanzia un nuovo Component","Rimuove il ConcreteComponent"],a:0,e:"Solo il ConcreteComponent non ha successore ma solo l'operazione effettiva."},
+{t:"S",s:"n",q:"Qual è il problema risolto dal Bridge?",o:["Disaccoppiare una gerarchia di astrazioni da una gerarchia di implementazioni, evitando la proliferazione di classi (es. forma × colore)","Convertire interfacce incompatibili","Condividere oggetti leggeri","Navigare un aggregato"],a:0,e:"Si compone l'implementazione nell'astrazione, anche a run-time."},
+{t:"S",s:"n",q:"Differenza tra Bridge e Adapter:",o:["Bridge è una scelta di design per far evolvere separatamente astrazioni e implementazioni; Adapter connette a posteriori un'astrazione e un'implementazione già esistenti senza alterarle","Sono lo stesso pattern","L'adapter estende l'astrazione","Il bridge funziona solo con classi scorrelate"],a:0,e:"Nel bridge l'astrazione si può estendere a piacimento; nell'adapter è un punto fermo."},
+{t:"S",s:"n",q:"Il Proxy che ritarda la creazione di un oggetto costoso è detto:",o:["Virtual proxy","Protection proxy","Cache proxy","Counting proxy"],a:0,e:"Protection proxy = livelli di accesso; cache = memorizza risultati; counting = conta i riferimenti (garbage collector)."},
+{t:"S",s:"n",q:"Quale tecnologia Java usa il pattern Proxy per far sembrare locali oggetti remoti?",o:["RMI (Remote Method Invocation)","JUnit","Streams","Reflection"],a:0,e:"Gli oggetti locali fungono da proxy e redirezionano le chiamate ad altre macchine."},
+{t:"S",s:"n",q:"Perché un Flyweight dev'essere immutabile?",o:["Perché viene concesso «in prestito» a molti client che condividono la stessa istanza","Perché non ha attributi","Perché non può essere clonato","Perché è un singleton"],a:0,e:"Per lo stesso motivo non si possono più confrontare le istanze: viene sempre data la stessa."},
+
+// ---- Comportamentali ----
+{t:"B",s:"n",q:"Nell'Observer, cosa fa notify() del Subject?",o:["Invoca update() su tutti gli observer registrati","Rimuove gli observer","Cambia lo stato del subject","Istanzia gli observer"],a:0,e:"Gli observer si aggiornano in virtù della notifica ricevuta."},
+{t:"B",s:"n",q:"Quando il Subject passa informazioni di stato come parametro di notify() si parla di modalità:",o:["Push","Pull","Lazy","Broadcast"],a:0,e:"Pull: concede all'Observer l'accesso al suo stato (getState())."},
+{t:"B",s:"n",q:"A cosa serve la variabile booleana changed (setChanged()) nel Subject?",o:["A notificare solo se almeno un cambiamento significativo è avvenuto, evitando notifiche a ogni singola modifica","A bloccare gli observer","A clonare lo stato","A contare gli observer"],a:0,e:"Alla fine dell'algoritmo: se changed è true si esegue notify()."},
+{t:"B",s:"n",q:"Un limite dell'Observer classico è che notify() è:",o:["Sincrono: il client attende che tutti gli observer eseguano update()","Asincrono sempre","Impossibile in Java","Valido solo per un observer"],a:0,e:"Soluzione: Publish/Subscribe e programmazione reattiva (java.util.concurrent.Flow)."},
+{t:"B",s:"n",q:"Nella libreria Flow di Java, Subscription permette al Subscriber di:",o:["Richiedere n notifiche con request(n) o annullarle con cancel()","Pubblicare item","Creare processor","Modificare il Publisher"],a:0,e:"Controlla la velocità di ricezione e disaccoppia produttore e consumatore."},
+{t:"B",s:"n",q:"Il pattern Model View Controller è:",o:["L'applicazione dell'Observer all'architettura di un intero sistema","Una variante del Singleton","Un pattern creazionale","Un algoritmo di ordinamento"],a:0,e:"Il modello è il subject; le viste sono gli observer."},
+{t:"B",s:"n",q:"Differenza fondamentale tra State e Strategy:",o:["Nello State il contesto cambia più volte lo stato concreto nello stesso ciclo di vita e il client vede comportamenti diversi; nella Strategy se ne applica una per ciclo di vita e il risultato visibile non cambia","Sono identici","Lo State ha scope di classe","Nella Strategy il contesto cambia sempre"],a:0,e:"Entrambi hanno object scope."},
+{t:"B",s:"n",q:"Template Method vs Strategy: qual è lo scope?",o:["Template Method: class scope (ereditarietà); Strategy: object scope (composizione)","Entrambi object scope","Entrambi class scope","Template: object scope; Strategy: class scope"],a:0,e:"Nella Strategy si può cambiare l'oggetto strategia a run-time."},
+{t:"B",s:"n",q:"Nel Template Method in Java, come vanno dichiarati il metodo template e le operazioni primitive da ridefinire?",o:["Template final; operazioni primitive protected","Template protected; primitive final","Entrambi final","Entrambi private"],a:0,e:"Il template non dev'essere sostituibile in override; le primitive devono essere visibili alle sottoclassi."},
+{t:"B",s:"n",q:"Cosa significa «inversione del flusso di controllo» nel Template Method?",o:["La classe padre esegue i metodi ridefiniti nelle sottoclassi","Il client chiama sempre le sottoclassi","Le sottoclassi chiamano il client","Il metodo template è privato"],a:0,e:"Il principio di Hollywood: «non chiamarci, ti chiamiamo noi»."},
+{t:"B",s:"n",q:"Perché usare la Strategy invece di derivare sottoclassi (es. Layout × Component in AWT)?",o:["Per evitare la proliferazione di classi (20 layout × 40 componenti ≈ 800)","Perché è più veloce","Perché le sottoclassi non esistono in Java","Perché richiede meno oggetti"],a:0,e:"Il costo: indirezione extra tra contesto e strategia."},
+{t:"B",s:"n",q:"Comparable e Comparator: qual è la differenza?",o:["Comparable definisce l'ordinamento naturale dentro la classe (compareTo); Comparator è un oggetto esterno che implementa una strategia di confronto (compare)","Sono sinonimi","Comparator richiede di modificare la classe","Comparable permette più criteri"],a:0,e:"Comparator permette molteplici criteri e non richiede di modificare la classe."},
+{t:"B",s:"n",q:"L'Iterator serve a:",o:["Attraversare un aggregato senza esporne la struttura, con attraversamenti anche multipli","Clonare un aggregato","Ordinare un aggregato","Creare un aggregato"],a:0,e:"Il ciclo enhanced for usa implicitamente un iteratore."},
+{t:"B",s:"n",q:"Nell'Iterator pattern, quale metodo di Aggregate crea l'iteratore?",o:["createIterator() (è un factory method)","next()","first()","isDone()"],a:0,e:"first(), next(), isDone(), currentItem() sono dell'Iterator."},
+{t:"B",s:"n",q:"Che cosa risolve il Null Object?",o:["I controlli ripetuti sul valore null, sostituendolo con un oggetto che implementa un comportamento «nullo»","La creazione di oggetti costosi","La clonazione","La notifica di eventi"],a:0,e:"Il NullNode della slide restituisce false in includes(). Se è senza stato basta una sola istanza (Singleton)."},
+{t:"B",s:"n",q:"Quale svantaggio ha il Null Object?",o:["Non può diventare un RealObject, può forzare un'uniformità e occupare memoria","Richiede reflection","Non funziona con le interfacce","Rende impossibile l'ereditarietà"],a:0,e:"I client potrebbero avere idee diverse sul «do nothing»."},
+{t:"B",s:"n",q:"Nel Visitor, come funziona il «double dispatch»?",o:["L'elemento chiama accept(visitor) e questo chiama visitor.visitElemento(this)","Il visitor chiama due volte l'elemento","Due visitor si chiamano","L'elemento duplica sé stesso"],a:0,e:"Il metodo eseguito dipende sia dal tipo dell'elemento sia da quello del visitor."},
+{t:"B",s:"n",q:"Il Visitor è adatto quando:",o:["La struttura cambia raramente ma si aggiungono spesso nuove operazioni","Si aggiungono spesso nuovi elementi","Serve una sola operazione","La struttura è omogenea"],a:0,e:"Se si aggiunge un nuovo elemento bisogna modificare tutti i Visitor."},
+{t:"B",s:"n",q:"Quali vantaggi dà il Command?",o:["Disaccoppia invoker ed esecutore, permette macro, undo e schedulazione","Riduce le classi","Elimina le chiamate indirette","Garantisce un'unica istanza"],a:0,e:"Il ConcreteCommand incapsula il receiver e il risultato; il command processor gestisce logging e transazioni."},
+{t:"B",s:"n",q:"In che modo il Command si differenzia dall'Observer?",o:["I comandi sono passati a run-time, non callback statiche","Non c'è differenza","Il Command non incapsula oggetti","L'Observer ha undo"],a:0,e:"Il meccanismo del command è più sofisticato: definizione, invocazione ed esecuzione in tempi diversi."},
+{t:"B",s:"n",q:"Il Memento serve a:",o:["Salvare e ripristinare lo stato di un oggetto senza violarne l'incapsulamento","Navigare strutture","Creare famiglie di oggetti","Notificare eventi"],a:0,e:"L'Originator crea il Memento, che ha getState()/setState()."},
+{t:"B",s:"n",q:"Chain of Responsibility e Decorator: qual è la differenza?",o:["Nella catena una richiesta è reindirizzata a un oggetto che possa soddisfarla; nel decorator ogni decoratore contribuisce alla richiesta","Sono identici","Il decorator ha struttura non lineare","La catena aggiunge funzionalità a ogni nodo"],a:0,e:"Inoltre la catena è una gerarchia di responsabilità (non necessariamente lineare)."},
+{t:"B",s:"n",q:"Il Chain of Responsibility può essere visto come:",o:["Polimorfismo fuori dalla gerarchia di classi, con struttura dinamica a run-time","Un pattern creazionale","Una forma di ereditarietà multipla","Un pattern di persistenza"],a:0,e:"La struttura è composta e modificabile durante l'esecuzione."},
+
+// ---- OOP, principi, refactoring ----
+{t:"O",s:"n",q:"Il principio di singola responsabilità afferma che:",o:["Ogni metodo svolge una singola attività in relazione al suo ADT e ogni classe rappresenta un singolo concetto","Ogni classe ha un solo metodo","Ogni metodo è lungo","Ogni progetto ha un solo sviluppatore"],a:0,e:"Metodi piccoli, più riusabili e più semplici da sovrascrivere."},
+{t:"O",s:"n",q:"«Programmare riferendosi ad interfacce, non ad implementazioni» significa:",o:["Usare nei client come tipi le interfacce o classi astratte","Evitare le interfacce","Scrivere solo classi concrete","Non usare mai new"],a:0,e:"Es. Collection mySet = new HashSet(...)."},
+{t:"O",s:"n",q:"Perché «favorire la composizione all'ereditarietà»?",o:["Perché il legame è dinamico (cambiabile a runtime), favorisce coesione e basso accoppiamento","Perché è più veloce","Perché Java non ha ereditarietà","Perché evita le interfacce"],a:0,e:"L'ereditarietà è un legame statico di tipo."},
+{t:"O",s:"n",q:"La coesione di una classe misura:",o:["Quanto i suoi metodi lavorano sugli stessi attributi","Quante classi usa","Quante righe di codice ha","Quanti metodi pubblici ha"],a:0,e:"Alta coesione = metodi dipendenti tra loro."},
+{t:"O",s:"n",q:"L'accoppiamento tra moduli dovrebbe essere:",o:["Il più basso possibile","Il più alto possibile","Sempre nullo","Indifferente"],a:0,e:"Massima coesione e minimo accoppiamento."},
+{t:"O",s:"n",q:"Violazione della legge di Demeter:",o:["b.c.m(): l'oggetto conosce anche l'interfaccia di c","b.m()","m()","b.getC()"],a:0,e:"Con un solo punto si dipende solo dal livello successivo."},
+{t:"O",s:"n",q:"Quale NON è tra i principi di packaging visti (REP, CRP, CCP, ADP)?",o:["Principio di sostituzione di Liskov","Reuse/Release Equivalence Principle","Common Closure Principle","Acyclic Dependencies Principle"],a:0,e:"CCP: le classi che cambiano per lo stesso motivo stanno insieme. ADP: dipendenze tra package ad albero aciclico."},
+{t:"O",s:"n",q:"Come si rompe un ciclo di dipendenze tra package?",o:["Con il Dependency Inversion Principle: un nuovo package/interfaccia da cui dipendono entrambi","Fondendo tutto in una classe","Usando static","Con ereditarietà multipla"],a:0,e:"Nell'esempio MyDialogs/MyApplication."},
+{t:"O",s:"n",q:"In Java, perché non c'è l'ereditarietà multipla di classi?",o:["Per avere gerarchie lineari; si aggira con le interfacce","Perché è lenta","Perché non esistono classi astratte","Perché è vietata dal compilatore C"],a:0,e:"Con i metodi default, in caso di conflitto si risolve con I1.super.display()."},
+{t:"O",s:"n",q:"Cosa significa la keyword final su un metodo?",o:["Una sottoclasse non può farne override","Il metodo è statico","Il metodo è privato","Il metodo non può essere chiamato"],a:0,e:"Su una classe: non si possono derivare altre classi. Su una variabile: non può essere riassegnata."},
+{t:"O",s:"n",q:"Cosa significa static su un metodo?",o:["Metodo di classe: unico e globale, eseguibile senza istanze","Metodo di istanza","Metodo privato","Metodo astratto"],a:0,e:"I metodi di istanza vengono chiamati sull'istanza."},
+{t:"O",s:"n",q:"Le tre caratteristiche della OOP sono:",o:["Incapsulamento, ereditarietà, polimorfismo","Compilazione, linking, esecuzione","Coesione, accoppiamento, astrazione","Classi, funzioni, variabili"],a:0,e:"A livello sintattico si aggiunge solo il costrutto class."},
+{t:"O",s:"n",q:"Il late binding è:",o:["La risoluzione del metodo da eseguire a tempo di esecuzione in base al tipo effettivo","La risoluzione a compile time","Un tipo di cast","Una libreria"],a:0,e:"È alla base del polimorfismo e di molti pattern."},
+{t:"O",s:"n",q:"Quale tecnica di refactoring rimpiazza una variabile temporanea con un metodo?",o:["Sostituzione di variabili temporanee con metodi query","Estrai classe","Pull up","Rename"],a:0,e:"Es. double prezzoBase = quantita * prezzo; → getPrezzoBase()."},
+{t:"O",s:"n",q:"Nell'estrazione di un metodo, le variabili locali usate dal frammento diventano:",o:["Parametri del nuovo metodo","Attributi statici","Variabili globali","Costanti"],a:0,e:"Le variabili usate solo dal frammento diventano temporanee del nuovo metodo."},
+{t:"O",s:"n",q:"Secondo il paradigma Command and Query:",o:["Ogni metodo o modifica lo stato senza restituire nulla, o restituisce un valore senza modificare lo stato","Ogni metodo modifica e restituisce","Si usano solo getter","Si usano solo setter"],a:0,e:"Esempio: Pagamenti.calcolaSomma() (command) e getSomma() (query)."},
+
+// ---- UML ----
+{t:"U",s:"n",q:"Nel diagramma delle classi, l'aggregazione si rappresenta con:",o:["Un rombo vuoto","Un rombo pieno","Una freccia tratteggiata","Un cerchio vuoto"],a:0,e:"La composizione è il rombo pieno (ciclo di vita dipendente)."},
+{t:"U",s:"n",q:"La generalizzazione (ereditarietà) in UML:",o:["Freccia a punta dalla sottoclasse verso la superclasse","Freccia dalla superclasse alla sottoclasse","Linea tratteggiata verso l'interfaccia","Rombo vuoto"],a:0,e:"Per l'implementazione di un'interfaccia si usa la freccia tratteggiata verso l'interfaccia."},
+{t:"U",s:"n",q:"Il «lollipop» (linea con cerchio) indica:",o:["Un'interfaccia implementata da una classe","Una composizione","Una dipendenza","Una generalizzazione"],a:0,e:"La classe mette a disposizione dei client le funzionalità dell'interfaccia."},
+{t:"U",s:"n",q:"Quale diagramma serve come inizio top-down di una funzionalità individuata da uno use case?",o:["Diagramma delle attività","Diagramma di deployment","Diagramma dei package","Diagramma di temporizzazione"],a:0,e:"Con barre di fork/join, rombi per le alternative, swim lane per i responsabili."},
+{t:"U",s:"n",q:"Nel diagramma di sequenza, la «x» alla fine della linea di vita indica:",o:["La distruzione dell'istanza","Un errore","Un fork","Uno stato finale"],a:0,e:"Il rettangolo pieno sulla timeline indica che l'istanza è in esecuzione."},
+{t:"U",s:"n",q:"Nel diagramma di sequenza, un riquadro con etichetta loop indica:",o:["Uno scambio di messaggi ripetuto più volte","Una chiamata ricorsiva","Un'alternativa","Un'interfaccia"],a:0,e:"Es. printAll() per ogni esame."},
+{t:"U",s:"n",q:"Nel diagramma degli stati, una transizione con «guardia» avviene:",o:["Solo se la condizione è verificata","Sempre","Mai","Dopo un timeout"],a:0,e:"Può avere anche un'azione abbinata. Cerchio nero = stato iniziale; cerchio nero con contorno = finale."},
+{t:"U",s:"n",q:"Le quattro viste dell'UML (più la vista dei casi d'uso) sono:",o:["Logical, component, process, deployment","Class, object, sequence, state","Funzionale, a oggetti, dinamica, fisica","Analisi, design, codice, test"],a:0,e:"La use case view si sovrappone alle altre."},
+{t:"U",s:"n",q:"Con la modellazione dinamica quali diagrammi si usano?",o:["Attività, interazione/sequenza, stato","Use case","Classi","Deployment"],a:0,e:"Funzionale → use case; a oggetti → classi; dinamica → attività, sequenza, stati."},
+{t:"U",s:"n",q:"Nell'analisi testuale dei requisiti, un nome comune ricorrente e un verbo transitivo indicano rispettivamente:",o:["Una classe e un metodo","Un metodo e una classe","Un attributo e un evento","Un'interfaccia e un package"],a:0,e:"Un verbo intransitivo identifica invece un evento."},
+{t:"U",s:"n",q:"Nelle CRC cards di XP si annotano:",o:["Nome della classe, responsabilità, classi con cui collabora","Metodi e attributi","Casi d'uso","Test e risultati"],a:0,e:"Class Responsibility Collaboration: unica altra documentazione ammessa in XP."},
+
+// ---- Processi ----
+{t:"X",s:"n",q:"Quali sono le quattro attività fondamentali di ogni processo software?",o:["Specifiche/analisi, sviluppo/design, validazione, mantenimento/evoluzione","Progetto, test, deploy, contratto","Idea, prototipo, rilascio, vendita","Codifica, debug, commit, merge"],a:0,e:"Slide «Processo software»."},
+{t:"X",s:"n",q:"Nel waterfall con feedback:",o:["Ogni attività può tornare indietro alle precedenti","È strettamente sequenziale","Non produce documentazione","Coinvolge il cliente continuamente"],a:0,e:"Senza feedback è one-shot."},
+{t:"X",s:"n",q:"Per quali progetti il processo evolutivo (build and fix) è adatto?",o:["Piccoli progetti, piccole parti di sistemi, sistemi a vita breve","Grandi sistemi con requisiti fissi","Sistemi critici","Progetti con molti team"],a:0,e:"Ha tempi imprevedibili e poca documentazione."},
+{t:"X",s:"n",q:"Differenza tra sviluppo incrementale e iterativo:",o:["Incrementale: si aggiungono funzioni partendo da un'idea chiara del prodotto; iterativo: si ripete il lavoro affinando un'idea abbozzata","Sono sinonimi","Incrementale non produce release","Iterativo non coinvolge il cliente"],a:0,e:"Possono essere combinati."},
+{t:"X",s:"n",q:"Cosa sono i COTS nello sviluppo component-based?",o:["Componenti pre-esistenti non modificabili («off the shelf») da assemblare","Test unitari","Un tipo di contratto","Una metodologia agile"],a:0,e:"Si possono adattare con Adapter."},
+{t:"X",s:"n",q:"Nel modello a spirale, che cosa cresce lungo l'asse verticale?",o:["Il rischio, man mano che si va avanti nello sviluppo","La qualità","Il numero di sviluppatori","Il tempo"],a:0,e:"Quadranti: obiettivi, valutazione rischi/prototipi, sviluppo e verifica, pianificazione."},
+{t:"X",s:"n",q:"I quattro tipi di attività in XP sono:",o:["Listening, testing, coding, design","Analisi, design, test, release","Plan, do, check, act","Sprint, review, retrospective, planning"],a:0,e:"Focus sul codice, orientato alla gente, leggerezza."},
+{t:"X",s:"n",q:"Template standard di una user story:",o:["As a <role> I want to <action> so that <benefit>","Dato <contesto> quando <evento> allora <risultato>","Class Responsibility Collaboration","Given When Then Else"],a:0,e:"Dato-quando-allora è il formato dei test di accettazione."},
+{t:"X",s:"n",q:"Nel pair programming, driver e navigator:",o:["Il driver implementa i metodi; il navigator rivede il codice e scrive i test","Il driver rivede, il navigator scrive","Sono lo stesso ruolo","Il navigator guida il cliente"],a:0,e:"Funziona bene quando c'è armonia nella coppia."},
+{t:"X",s:"n",q:"La settimana lavorativa suggerita da XP è di:",o:["40 ore","48 ore","60 ore","20 ore"],a:0,e:"Un programmatore stressato produce codice con errori."},
+{t:"X",s:"n",q:"Cosa prevede l'integrazione continua in XP?",o:["Si integra nel sistema ogni pezzo che supera i test, senza attendere la fine dell'iterazione","Si integra una volta alla fine","Non si integra mai","Si integra senza test"],a:0,e:"Con strumenti (es. Maven) che automatizzano test e deployment."},
+{t:"X",s:"n",q:"In Scrum, chi gestisce il product backlog e imposta i goal dello sprint?",o:["Il Product Owner","Lo Scrum Master","Il Developer","Il cliente finale"],a:0,e:"Corrisponde al cliente di XP."},
+{t:"X",s:"n",q:"Lo Scrum Master:",o:["È un coach/facilitatore che rimuove gli impedimenti e fa rispettare le scadenze, non un capo","Decide i task","Scrive il codice","Approva le release"],a:0,e:"Esempio: rinnova la licenza del software scaduta."},
+{t:"X",s:"n",q:"Durata massima del daily scrum e domande a cui risponde ogni sviluppatore:",o:["15 minuti: cosa ho fatto ieri, cosa farò oggi, ci sono ostacoli","1 ora: stato del progetto","30 minuti: costi","5 minuti: nessuna domanda"],a:0,e:"Partecipano sviluppatori e scrum master."},
+{t:"X",s:"n",q:"Lo sprint planning dura al massimo:",o:["2 ore per ogni settimana di sprint","2 ore in totale","8 ore","1 giorno"],a:0,e:"Con uno sprint di 2 settimane: 4 ore. Gli sprint durano da 1 a 4 settimane."},
+{t:"X",s:"n",q:"Quali eventi chiudono uno sprint e chi partecipa?",o:["Sprint review (con il product owner) e sprint retrospective (senza cliente)","Daily e planning","Release e deploy","Solo la review"],a:0,e:"La review analizza l'incremento e può aggiornare il product backlog."},
+{t:"X",s:"n",q:"Differenza Scrum/XP nell'ordine dei task:",o:["In XP lo decide il cliente, in Scrum la priorità tecnica dei task del goal la decidono gli sviluppatori","Identico","In Scrum lo decide sempre il cliente","In XP lo decide lo scrum master"],a:0,e:"In Scrum il goal dello sprint non è negoziabile, in XP i requisiti possono cambiare con il cliente in sede."},
+{t:"X",s:"n",q:"Che cos'è una Kanban board?",o:["Una lavagna condivisa in cui tutti vedono i task da svolgere e il loro avanzamento","Un diagramma UML","Uno strumento di test","Un documento dei requisiti"],a:0,e:"Alternativa alla scrum board per gestire il backlog."},
+{t:"X",s:"n",q:"Quale tra queste NON è una legge di Lehman?",o:["Legge della riduzione dei costi","Legge del cambiamento continuo","Legge dell'incremento di complessità","Legge del declino di qualità"],a:0,e:"Altre: conservazione di familiarità, large program evolution, stabilità organizzativa, crescita continua."},
+{t:"X",s:"n",q:"Quali sono i tre tipi di modifiche di manutenzione?",o:["Riparative, adattative, additive","Correttive, di rete, di test","Preventive, curative, forensi","Hardware, software, firmware"],a:0,e:"Circa due terzi sono additive. Il costo di manutenzione può essere da 2 a 100 volte quello di sviluppo."},
+
+// ---- Java funzionale ----
+{t:"J",s:"n",q:"Una funzione lambda è:",o:["Una funzione anonima, oggetto di prima classe, non associata ad alcuna classe","Una classe astratta","Un tipo primitivo","Un'annotazione"],a:0,e:"Sintassi: (lista_parametri) -> {corpo}."},
+{t:"J",s:"n",q:"Un'interfaccia funzionale è:",o:["Un'interfaccia con un solo metodo astratto (@FunctionalInterface)","Un'interfaccia senza metodi","Una classe con un solo metodo","Un'interfaccia con un solo metodo in totale"],a:0,e:"Può avere altri metodi default/static e anche equals ereditato da Object."},
+{t:"J",s:"n",q:"Quale interfaccia funzionale ha il metodo boolean test(T)?",o:["Predicate<T>","Consumer<T>","Function<T,R>","Supplier<T>"],a:0,e:"Consumer: void accept(T). Function: R apply(T). Supplier: T get()."},
+{t:"J",s:"n",q:"Quale interfaccia funzionale corrisponde a void accept(T)?",o:["Consumer<T>","Predicate<T>","Supplier<T>","UnaryOperator<T>"],a:0,e:"È il Visitor in forma funzionale; forEach() richiede un Consumer."},
+{t:"J",s:"n",q:"Quale interfaccia funzionale non ha parametri e restituisce T (un factory)?",o:["Supplier<T>","Function<T,T>","BinaryOperator<T>","Predicate<T>"],a:0,e:"UnaryOperator<T>: T→T. BinaryOperator<T>: (T,T)→T."},
+{t:"J",s:"n",q:"Perché consumeStudent(() -> System.out.println(\"Test\")) NON compila se il parametro è Consumer<Student>?",o:["La lambda non ha parametri ma accept(Student) ne richiede uno","Println non esiste","Consumer non è funzionale","Manca il return"],a:0,e:"Bisogna rispettare numero di parametri e tipo di ritorno dell'interfaccia."},
+{t:"J",s:"n",q:"Nello stream result = albums.stream().filter(...).map(...).collect(...), quando vengono eseguite le operazioni intermedie?",o:["Solo quando viene invocata l'operazione terminale (lazy evaluation)","Subito, nell'ordine scritto","Mai","In parallelo sempre"],a:0,e:"Le intermedie sono una specifica del flusso."},
+{t:"J",s:"n",q:"Quale metodo è un'operazione terminale?",o:["collect()","filter()","map()","sorted()"],a:0,e:"Anche count, reduce, forEach, anyMatch... Intermedie: filter, map, flatMap, distinct, sorted, limit, skip, peek."},
+{t:"J",s:"n",q:"Differenza tra map e flatMap:",o:["map associa a ogni elemento un elemento; flatMap un sottostream di zero o più elementi","Sono identici","flatMap è terminale","map filtra"],a:0,e:"Utile per «appiattire» liste di liste."},
+{t:"J",s:"n",q:"Cosa restituisce min()/max() di uno stream e perché?",o:["Un Optional, perché lo stream potrebbe essere vuoto","Un int sempre","null se vuoto","Un'eccezione"],a:0,e:"Optional non è mai null; get() su un Optional vuoto lancia NoSuchElementException."},
+{t:"J",s:"n",q:"Quale metodo di Optional restituisce un valore di default se vuoto?",o:["orElse(T)","get()","ifPresent()","of()"],a:0,e:"of(null) lancia NPE; ofNullable(null) restituisce Optional vuoto."},
+{t:"J",s:"n",q:"Per ordinare un array di Person per nome si può scrivere:",o:["Comparator.comparing(Person::getName)","Comparable.compare(Person::getName)","Collections.compare(...)","Person.sort(name)"],a:0,e:"Riferimento a metodo di istanza di un oggetto arbitrario di un tipo specifico."},
+{t:"J",s:"n",q:"Quanti tipi di riferimenti a metodo esistono e quali?",o:["4: metodo statico, metodo di istanza di un oggetto specifico, di un oggetto arbitrario di un tipo, costruttore (::new)","2","3","5"],a:0,e:"Si usa l'operatore ::"},
+{t:"J",s:"n",q:"Cosa fa Collectors.partitioningBy(predicato)?",o:["Divide gli elementi in due gruppi (true/false) in una Map<Boolean, List<T>>","Ordina gli elementi","Filtra gli elementi","Concatena stringhe"],a:0,e:"Es. studenti con voto ≥ 70."},
+{t:"J",s:"n",q:"Cosa fa Stream.limit(10) applicato a Stream.iterate(0, i -> i + 1)?",o:["Prende i primi 10 valori di uno stream infinito","Genera 10 stream","Dà errore","Svuota lo stream"],a:0,e:"Senza limit(), collect() su uno stream infinito non termina."},
+{t:"J",s:"n",q:"Un metodo default in un'interfaccia serve a:",o:["Aggiungere funzionalità alle vecchie interfacce senza rompere il codice esistente","Rendere l'interfaccia astratta","Evitare le lambda","Impedire l'ereditarietà"],a:0,e:"Es. Iterable.forEach(Consumer) è un metodo default."},
+{t:"J",s:"n",q:"Se una classe implementa due interfacce con lo stesso metodo default display(), come si risolve il conflitto?",o:["Si ridefinisce display() e si chiama I1.super.display()","Il compilatore sceglie","Non si può","Si usa static"],a:0,e:"È il problema dell'ereditarietà multipla dell'implementazione."},
+
+// ---- Testing e metriche ----
+{t:"T",s:"n",q:"Differenza tra test black-box e white-box:",o:["Black-box dipende solo dalle specifiche; white-box anche dall'implementazione","Black-box guarda il codice","White-box non richiede il codice","Sono identici"],a:0,e:"I black-box si possono scrivere prima del codice e riusare se il codice cambia."},
+{t:"T",s:"n",q:"Nell'Equivalence Partitioning si testa:",o:["Almeno un valore rappresentativo per ogni partizione del dominio","Tutti i valori","Solo i valori limite","Solo valori casuali"],a:0,e:"Il Boundary Value Analysis testa invece i confini di ogni partizione."},
+{t:"T",s:"n",q:"Quali valori si testano nella Boundary Value Analysis di un intervallo [a, b]?",o:["I valori ai confini (a, b e quelli adiacenti)","Solo il valore medio","Solo i valori fuori range","Nessuno"],a:0,e:"Trova più errori dell'EP."},
+{t:"T",s:"n",q:"Che cosa garantisce il pairwise testing?",o:["Copre tutte le combinazioni di coppie di parametri, riducendo il numero di test","Copre tutte le combinazioni complete","Copre gli statement","Copre solo un parametro"],a:0,e:"È un t-way coverage con t=2; il covering array minimo è un problema NP-completo."},
+{t:"T",s:"n",q:"Branch coverage rispetto a statement coverage:",o:["È più forte: attraversa tutti gli archi del grafo di flusso, compreso l'else nullo","È più debole","Equivale sempre","Non esiste"],a:0,e:"Statement coverage non copre il caso if senza else quando la condizione è falsa."},
+{t:"T",s:"n",q:"Come si calcola la complessità ciclomatica di McCabe?",o:["Archi − nodi + 2 del grafo di controllo di flusso","Nodi × archi","Numero di righe","Numero di metodi"],a:0,e:"È il numero minimo di percorsi indipendenti (e quindi di test) per percorrere tutto il grafo."},
+{t:"T",s:"n",q:"In JUnit, l'annotazione @Before:",o:["Annota un metodo eseguito prima di ogni test","Esegue prima di tutti i test (una volta)","Esegue dopo ogni test","Esegue i test in parallelo"],a:0,e:"@BeforeClass è statico ed eseguito una volta; @After chiude dopo ogni test."},
+{t:"T",s:"n",q:"Uno stub e un mock object:",o:["Lo stub fornisce valori di ritorno predefiniti e si verifica lo stato; il mock verifica il comportamento (chiamate, ordine, parametri)","Sono identici","Il mock restituisce sempre null","Lo stub verifica le chiamate"],a:0,e:"Con Mockito: given(...).willReturn(...) e then(...).should()."},
+{t:"T",s:"n",q:"La struttura Given–When–Then dei test BDD indica:",o:["Contesto iniziale, evento che attiva lo scenario, risultato atteso","Dichiarazione, uso, test","Input, elaborazione, output","Setup, run, teardown"],a:0,e:"Nell'XP i test di accettazione sono scritti così."},
+{t:"T",s:"n",q:"La metrica WMC (Weighted Methods per Class) di Chidamber e Kemerer:",o:["Somma delle complessità dei metodi di una classe; più è alta, maggiore l'impatto sulle sottoclassi e più bug","Numero di figli","Profondità dell'ereditarietà","Accoppiamento fra oggetti"],a:0,e:"DIT: profondità; NOC: numero di figli; CBO: accoppiamento; RFC: risposta a un messaggio; LCOM: mancanza di coesione."},
+{t:"T",s:"n",q:"Un CBO alto indica:",o:["Forte accoppiamento tra classi, che previene il riuso e rende la manutenzione difficile","Alta coesione","Poche dipendenze","Codice ben commentato"],a:0,e:"CBO > 14 è sconsigliato."}
+];
+
+// ======================= ESERCIZI APERTI =======================
+const OPEN_QUESTIONS = [
+{t:"P",s:"e",q:`Compito (Busta e Deposito) — Per il seguente codice:
+(a) indicare il design pattern ed i nomi dei ruoli di ciascuna interfaccia e classe fornita,
+(b) indicare il nome appropriato di Tipo1, Tipo2 e parola chiave mod1,
+(c) implementare il codice appropriato di una classe C1 che chiama i metodi su un'istanza di Mini,
+(d) disegnare il diagramma UML delle classi fornite e della classe C1 (nomi classi, nomi metodi, relazioni),
+(e) disegnare il diagramma UML di sequenza in cui l'esecuzione inizia dalla classe C1.
+
+public interface Busta { public String getTipo(); public int getPeso(); }
+public class Grande implements Busta { ... }
+public class Mini implements Busta { ... }
+public class Deposito {
+  public Tipo1 getBusta() { return new Grande(); }
+  public Tipo2 getMini()  { return mod1 Mini(); }
+}`,a:`<h4>(a) Pattern e ruoli</h4>
+<ul><li><b>Factory Method</b>.</li>
+<li><b>Busta</b> = Product (interfaccia); <b>Grande</b> e <b>Mini</b> = ConcreteProduct; <b>Deposito</b> = Creator/ConcreteCreator (ha i due factory method getBusta() e getMini()).</li></ul>
+<h4>(b) Tipi e keyword</h4>
+<ul><li><b>Tipo1 = Busta</b>, <b>Tipo2 = Busta</b>: i factory method restituiscono il tipo astratto del prodotto, così il client non dipende da Grande e Mini.</li><li><b>mod1 = new</b>.</li></ul>
+<h4>(c) Classe C1</h4>
+<pre>public class C1 {
+    public void esegui() {
+        Deposito d = new Deposito();
+        Busta m = d.getMini();          // tipo di riferimento = interfaccia
+        System.out.println(m.getTipo());
+        System.out.println(m.getPeso());
+    }
+}</pre>
+<h4>(d) UML delle classi</h4>
+<pre>«interface» Busta   : +getTipo(): String, +getPeso(): int
+Grande ┄┄▷ Busta        (implementazione: freccia tratteggiata)
+Mini   ┄┄▷ Busta
+Deposito : +getBusta(): Busta, +getMini(): Busta
+Deposito ┄┄&gt; Grande      (dipendenza «crea»)
+Deposito ┄┄&gt; Mini        (dipendenza «crea»)
+C1 : +esegui()
+C1 ┄┄&gt; Deposito          (dipendenza: usa)
+C1 ┄┄&gt; Busta             (dipendenza: usa)</pre>
+<h4>(e) UML di sequenza (parte da C1)</h4>
+<pre>C1 → Deposito : new Deposito()
+C1 → Deposito : getMini()
+   Deposito → Mini : new Mini()
+   Deposito → C1   : return Busta (Mini)
+C1 → Mini : getTipo()
+C1 → Mini : getPeso()</pre>`},
+
+{t:"J",s:"e",q:`Compito (Persona) — Usando la programmazione funzionale di Java, data una lista gente di istanze di Persona, implementare una classe con:
+(a) un metodo che trova nella lista gente le persone con nazione uguale a un parametro e restituisce la lista dei nomi,
+(b) un metodo che conta il numero di nazioni diverse presenti nella lista e lo restituisce,
+(c) un metodo che crea una lista di String con la prima lettera delle nazioni presenti, senza ripetizioni,
+(d) un metodo che restituisce la lista delle età delle persone della lista.
+
+public record Persona(String nome, String nazione, int eta) { }`,a:`<pre>import java.util.List;
+
+public class Gente {
+    private final List&lt;Persona&gt; gente;
+
+    public Gente(List&lt;Persona&gt; gente) { this.gente = gente; }
+
+    // (a)
+    public List&lt;String&gt; nomiPerNazione(String nazione) {
+        return gente.stream()
+                .filter(p -&gt; p.nazione().equals(nazione))
+                .map(Persona::nome)
+                .toList();
+    }
+
+    // (b)
+    public long contaNazioniDiverse() {
+        return gente.stream()
+                .map(Persona::nazione)
+                .distinct()
+                .count();
+    }
+
+    // (c)
+    public List&lt;String&gt; iniziali() {
+        return gente.stream()
+                .map(p -&gt; p.nazione().substring(0, 1))
+                .distinct()
+                .toList();
+    }
+
+    // (d)
+    public List&lt;Integer&gt; eta() {
+        return gente.stream()
+                .map(Persona::eta)
+                .toList();
+    }
+}</pre>
+<ul><li>Nei record gli accessor si chiamano <b>p.nazione()</b>, non getNazione().</li><li>Con <b>.toList()</b> (Java 16+) si evita collect(Collectors.toList()); in alternativa usa <b>collect(Collectors.toList())</b>.</li><li>count() restituisce un long.</li></ul>`},
+
+{t:"S",s:"e",q:`Compito (Calcolatore) — Per il seguente codice, ciascun record è istanziabile una o più volte e fa parte del sottosistema per il design pattern Facade:
+(a) completare l'implementazione del pattern con la classe Facade Calcolatore che abbia i metodi appropriati,
+(b) implementare una classe Client che ha a disposizione una configurazione di default di Calcolatore, chiede il costo totale, e aggiunge tipi di memoria, usando in modo appropriato le classi date e quella implementata nel punto a,
+(c) disegnare il diagramma UML delle classi (nomi classi, nomi metodi, relazioni) per il codice fornito e quello aggiunto nei punti a, b,
+(d) disegnare il diagramma UML di sequenza illustrando l'esecuzione a partire da una classe appropriata.
+
+record Memoria(int capienza, int velocita, int costo, String tipo) { /* tipo: cache, ram, ssd, disco */ }
+record SchedaGrafica(String risoluzione, int costo) { }
+record CPU(float frequenza, int numeroCore, String id, int costo) { }`,a:`<h4>(a) Facade Calcolatore</h4>
+<p>Il Facade <b>istanzia gli oggetti del sottosistema al posto del client</b>, ha una configurazione di default e offre metodi semplici. Il client non deve conoscere i record.</p>
+<pre>import java.util.ArrayList;
+import java.util.List;
+
+public class Calcolatore {
+    private final CPU cpu;
+    private final SchedaGrafica scheda;
+    private final List&lt;Memoria&gt; memorie = new ArrayList&lt;&gt;();
+
+    // configurazione di default
+    public Calcolatore() {
+        cpu = new CPU(3.0f, 8, "cpu-default", 300);
+        scheda = new SchedaGrafica("1920x1080", 250);
+        memorie.add(new Memoria(16, 3200, 80, "ram"));
+        memorie.add(new Memoria(512, 3500, 60, "ssd"));
+    }
+
+    // il facade crea la Memoria, il client passa solo i dati
+    public void aggiungiMemoria(int capienza, int velocita, int costo, String tipo) {
+        memorie.add(new Memoria(capienza, velocita, costo, tipo));
+    }
+
+    public int costoTotale() {
+        int tot = cpu.costo() + scheda.costo();
+        for (Memoria m : memorie) tot += m.costo();
+        return tot;
+    }
+
+    // opzionale: esempio di metodo che rielabora funzionalità del sottosistema
+    public int capienzaTotale(String tipo) {
+        return memorie.stream()
+                .filter(m -&gt; m.tipo().equals(tipo))
+                .mapToInt(Memoria::capienza)
+                .sum();
+    }
+}</pre>
+<h4>(b) Client</h4>
+<pre>public class Client {
+    private final Calcolatore calc = new Calcolatore();   // default
+
+    public void esegui() {
+        System.out.println("Costo iniziale: " + calc.costoTotale());
+        calc.aggiungiMemoria(1000, 550, 70, "disco");
+        calc.aggiungiMemoria(8, 6000, 40, "cache");
+        System.out.println("Costo finale: " + calc.costoTotale());
+    }
+
+    public static void main(String[] args) { new Client().esegui(); }
+}</pre>
+<h4>(c) UML delle classi</h4>
+<pre>Memoria      : capienza, velocita, costo, tipo   (record)
+SchedaGrafica: risoluzione, costo                (record)
+CPU          : frequenza, numeroCore, id, costo  (record)
+Calcolatore  : +Calcolatore(), +aggiungiMemoria(...): void,
+               +costoTotale(): int, +capienzaTotale(String): int
+Calcolatore ◆──▶ CPU            (composizione 1)
+Calcolatore ◆──▶ SchedaGrafica  (composizione 1)
+Calcolatore ◆──▶ Memoria        (composizione 1..*)
+Client : +esegui(), +main(String[])
+Client ──▶ Calcolatore          (associazione / dipendenza d'uso)
+(il Client NON ha frecce verso i record)</pre>
+<h4>(d) UML di sequenza (parte da Client)</h4>
+<pre>Client → Calcolatore : new Calcolatore()
+   Calcolatore → CPU : new CPU(...)
+   Calcolatore → SchedaGrafica : new SchedaGrafica(...)
+   Calcolatore → Memoria : new Memoria(...)   [x2, default]
+Client → Calcolatore : costoTotale()
+   loop [per ogni memoria]  Calcolatore → Memoria : costo()
+   Calcolatore → CPU : costo() ;  Calcolatore → SchedaGrafica : costo()
+Client → Calcolatore : aggiungiMemoria(...)
+   Calcolatore → Memoria : new Memoria(...)
+Client → Calcolatore : costoTotale()</pre>`},
+
+{t:"J",s:"e",q:`Compito (Triang) — Usando la programmazione funzionale di Java, data una lista tr di istanze di Triang, implementare una classe con:
+(a) un metodo che restituisce la lista di istanze di TriangIso con i valori delle istanze della lista tr che sono triangoli isosceli, ovvero che due angoli siano uguali (nota: la base è il lato che ha misura diversa dagli altri due lati, il vertice è l'angolo che ha la misura diversa dagli altri due angoli),
+(b) un metodo che a partire dalla lista di TriangIso trovata restituisce una lista contenente la base dei triangoli isosceli,
+(c) un metodo che restituisce il vertice di misura maggiore fra i triangoli isosceli,
+(d) un metodo che restituisce la somma dei perimetri delle istanze di tr.
+
+record Triang(int lato1, int lato2, int lato3, int angolo1, int angolo2, int angolo3) { }
+record TriangIso(int lato, int base, int vertice) { }`,a:`<p>Assunzione: il lato i è opposto all'angolo i. Due angoli uguali ⇒ i lati opposti sono uguali; la base è opposta al vertice.</p>
+<pre>import java.util.List;
+import java.util.OptionalInt;
+import java.util.Objects;
+
+public class Triangoli {
+    private final List&lt;Triang&gt; tr;
+
+    public Triangoli(List&lt;Triang&gt; tr) { this.tr = tr; }
+
+    private static boolean isoscele(Triang t) {
+        return t.angolo1() == t.angolo2()
+            || t.angolo1() == t.angolo3()
+            || t.angolo2() == t.angolo3();
+    }
+
+    private static TriangIso daTriang(Triang t) {
+        if (t.angolo1() == t.angolo2())          // vertice = angolo3, base = lato3
+            return new TriangIso(t.lato1(), t.lato3(), t.angolo3());
+        if (t.angolo1() == t.angolo3())          // vertice = angolo2, base = lato2
+            return new TriangIso(t.lato1(), t.lato2(), t.angolo2());
+        return new TriangIso(t.lato2(), t.lato1(), t.angolo1());   // angolo2 == angolo3
+    }
+
+    // (a)
+    public List&lt;TriangIso&gt; isosceli() {
+        return tr.stream()
+                .filter(Triangoli::isoscele)
+                .map(Triangoli::daTriang)
+                .toList();
+    }
+
+    // (b)
+    public List&lt;Integer&gt; basi(List&lt;TriangIso&gt; iso) {
+        return iso.stream().map(TriangIso::base).toList();
+    }
+
+    // (c)
+    public OptionalInt verticeMax(List&lt;TriangIso&gt; iso) {
+        return iso.stream().mapToInt(TriangIso::vertice).max();
+    }
+
+    // (d)
+    public int sommaPerimetri() {
+        return tr.stream()
+                .mapToInt(t -&gt; t.lato1() + t.lato2() + t.lato3())
+                .sum();
+    }
+}</pre>
+<ul><li>(c) restituisce un <b>OptionalInt</b> perché la lista potrebbe essere vuota (usa orElse(0) o getAsInt()).</li><li>Il triangolo equilatero ha tutti gli angoli uguali: viene catturato dal primo if.</li><li>Specifica sempre l'assunzione sul lato opposto all'angolo se il testo non lo dice.</li></ul>`},
+
+{t:"B",s:"n",q:`Esercizio — Implementare in Java il pattern Observer (versione base) con un Subject Termometro che notifica a degli Observer il cambio di temperatura, e due ConcreteObserver (uno stampa, uno accende un allarme se la temperatura supera 40). Poi disegnare il diagramma UML delle classi.`,a:`<pre>import java.util.ArrayList;
+import java.util.List;
+
+interface Observer { void update(Termometro t); }          // modalità pull
+
+abstract class Subject {
+    private final List&lt;Observer&gt; observers = new ArrayList&lt;&gt;();
+    public void attach(Observer o) { observers.add(o); }
+    public void detach(Observer o) { observers.remove(o); }
+    protected void notifyObservers() {
+        for (Observer o : observers) o.update((Termometro) this);
+    }
+}
+
+class Termometro extends Subject {
+    private double temperatura;
+    public double getState() { return temperatura; }
+    public void setState(double t) { temperatura = t; notifyObservers(); }
+}
+
+class Stampa implements Observer {
+    public void update(Termometro t) { System.out.println("T = " + t.getState()); }
+}
+
+class Allarme implements Observer {
+    public void update(Termometro t) {
+        if (t.getState() &gt; 40) System.out.println("ALLARME!");
+    }
+}</pre>
+<pre>UML:
+Subject (abstract): +attach(Observer), +detach(Observer), +notifyObservers()
+Subject ◇──▶ Observer  (aggregazione 0..*)
+«interface» Observer : +update(Termometro)
+Termometro ──▷ Subject (generalizzazione) ; +getState(), +setState(double)
+Stampa ┄┄▷ Observer ; Allarme ┄┄▷ Observer
+Stampa/Allarme ┄┄&gt; Termometro (dipendenza: leggono lo stato)</pre>`},
+
+{t:"B",s:"n",q:`Esercizio — Dato lo switch seguente su un biglietto con stati DISPONIBILE e BLOCCATO, fare refactoring con il pattern State.
+
+public void prenota(String s) {
+  switch (stato) {
+    case DISP: /* assegna il posto a s e passa a BLOC */ break;
+    case BLOC: /* stampa "Non disponibile" */ break;
+  }
+}`,a:`<pre>interface StatoBiglietto {
+    StatoBiglietto prenota(Biglietto b, String s);   // restituisce il prossimo stato
+}
+
+class Disponibile implements StatoBiglietto {
+    public StatoBiglietto prenota(Biglietto b, String s) {
+        b.assegna(s);                  // assegna il posto
+        return new Bloccato();         // transizione
+    }
+}
+
+class Bloccato implements StatoBiglietto {
+    public StatoBiglietto prenota(Biglietto b, String s) {
+        System.out.println("Non disponibile");
+        return this;
+    }
+}
+
+class Biglietto {
+    private StatoBiglietto sb = new Disponibile();
+    public void prenota(String s) { sb = sb.prenota(this, s); }   // niente switch
+    void assegna(String s) { /* ... */ }
+}</pre>
+<ul><li>Il <b>Context</b> (Biglietto) tiene un riferimento di tipo State.</li><li>Variante: se gli stati non hanno attributi di istanza si possono rendere <b>Singleton</b>.</li><li>Alternativa: le transizioni nel Context rendono gli stati più semplici e riusabili.</li></ul>`},
+
+{t:"J",s:"n",q:`Esercizio — Data una List<Studente> con record Studente(String nome, int voto), usare gli stream per:
+(a) la lista dei nomi degli studenti con voto ≥ 18,
+(b) la media dei voti,
+(c) una Map<Boolean, List<Studente>> promossi/bocciati,
+(d) il nome dello studente col voto massimo (gestendo il caso lista vuota),
+(e) tutti i nomi concatenati con virgola.`,a:`<pre>record Studente(String nome, int voto) { }
+
+// (a)
+List&lt;String&gt; promossi = studenti.stream()
+        .filter(s -&gt; s.voto() &gt;= 18)
+        .map(Studente::nome)
+        .toList();
+
+// (b)
+double media = studenti.stream()
+        .mapToInt(Studente::voto)
+        .average()
+        .orElse(0);
+
+// (c)
+Map&lt;Boolean, List&lt;Studente&gt;&gt; esito = studenti.stream()
+        .collect(Collectors.partitioningBy(s -&gt; s.voto() &gt;= 18));
+
+// (d)
+String migliore = studenti.stream()
+        .max(Comparator.comparingInt(Studente::voto))
+        .map(Studente::nome)
+        .orElse("nessuno");
+
+// (e)
+String tutti = studenti.stream()
+        .map(Studente::nome)
+        .collect(Collectors.joining(", "));</pre>
+<ul><li>average() e max() restituiscono Optional: si gestisce con orElse.</li><li>Le operazioni intermedie sono lazy: parte tutto alla terminale.</li></ul>`},
+
+{t:"S",s:"n",q:`Esercizio — Applicare il pattern Decorator a un componente Caffe con costo() e descrizione(): implementare i decorator Latte (+0.5) e Zucchero (+0.2) e creare un caffè con latte e doppio zucchero. Disegnare l'UML.`,a:`<pre>interface Caffe { double costo(); String descrizione(); }
+
+class CaffeBase implements Caffe {                    // ConcreteComponent
+    public double costo() { return 1.0; }
+    public String descrizione() { return "caffè"; }
+}
+
+abstract class Decorator implements Caffe {
+    protected final Caffe successivo;                 // riferimento al Component
+    Decorator(Caffe c) { successivo = c; }
+    public double costo() { return successivo.costo(); }
+    public String descrizione() { return successivo.descrizione(); }
+}
+
+class Latte extends Decorator {
+    Latte(Caffe c) { super(c); }
+    public double costo() { return successivo.costo() + 0.5; }
+    public String descrizione() { return successivo.descrizione() + " + latte"; }
+}
+
+class Zucchero extends Decorator {
+    Zucchero(Caffe c) { super(c); }
+    public double costo() { return successivo.costo() + 0.2; }
+    public String descrizione() { return successivo.descrizione() + " + zucchero"; }
+}
+
+// client
+Caffe c = new Zucchero(new Zucchero(new Latte(new CaffeBase())));
+System.out.println(c.descrizione() + " = " + c.costo());   // 1.9</pre>
+<pre>UML:
+«interface» Caffe : +costo(), +descrizione()
+CaffeBase ┄┄▷ Caffe ; Decorator ┄┄▷ Caffe
+Decorator ◇──▶ Caffe  (riferimento privato al successivo)
+Latte ──▷ Decorator ; Zucchero ──▷ Decorator</pre>`},
+
+{t:"P",s:"n",q:`Esercizio — Implementare un Singleton per una classe Configurazione e poi il Factory Method con interfaccia Prodotto, due ConcreteProduct (A e B), Creator astratto con operazione() e ConcreteCreator per A.`,a:`<pre>// Singleton
+public class Configurazione {
+    private static Configurazione istanza;
+    private Configurazione() { }                      // costruttore privato
+    public static Configurazione getInstance() {
+        if (istanza == null) istanza = new Configurazione();
+        return istanza;
+    }
+}
+
+// Factory Method
+interface Prodotto { void request(); }
+class ProdottoA implements Prodotto { public void request() { System.out.println("A"); } }
+class ProdottoB implements Prodotto { public void request() { System.out.println("B"); } }
+
+abstract class Creator {
+    abstract Prodotto getProdotto();                  // factory method
+    public void operazione() {
+        Prodotto p = getProdotto();                   // dipende solo da Prodotto
+        p.request();
+    }
+}
+
+class CreatorA extends Creator {
+    Prodotto getProdotto() { return new ProdottoA(); }
+}
+
+// client
+Creator c = new CreatorA();
+c.operazione();</pre>
+<ul><li>Per un nuovo prodotto B serve un nuovo ConcreteCreator: è la proliferazione di classi.</li><li>Non thread-safe: in contesto multithread servono synchronized o holder idiom (non nelle slide).</li></ul>`}
+];
+</script>
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+const LETTERS = "ABCDEFGHIJ";
+function hid(s){ let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
+QUESTIONS.forEach(q=>{ q.id = "q"+hid(q.q+q.o.join("|")); });
+function topicName(t){ return TOPICS[t] || t; }
+
+// ---------- storage (best effort) ----------
+const KEY="isw.quiz.v1";
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ return {}; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
+let store = load(); store.stats = store.stats||{}; store.prefs = store.prefs||{};
+
+// ---------- theme ----------
+function applyTheme(){ if(store.prefs.theme) document.documentElement.setAttribute("data-theme", store.prefs.theme); }
+applyTheme();
+$("themeBtn").onclick=()=>{
+  const cur = document.documentElement.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  store.prefs.theme = cur==="dark"?"light":"dark"; applyTheme(); save();
+};
+
+// ---------- home ----------
+let selTopics = new Set((store.prefs.topics || Object.keys(TOPICS)).filter(k=>TOPICS[k]));
+function renderChips(){
+  const box=$("topicChips"); box.innerHTML="";
+  Object.entries(TOPICS).forEach(([k,name])=>{
+    const n = QUESTIONS.filter(q=>q.t===k).length;
+    const lab=document.createElement("label"); lab.className="chip"+(selTopics.has(k)?" on":"");
+    const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=selTopics.has(k);
+    cb.onchange=()=>{ cb.checked?selTopics.add(k):selTopics.delete(k); store.prefs.topics=[...selTopics]; save(); renderChips(); };
+    lab.append(cb, document.createTextNode(name+" "));
+    const s=document.createElement("small"); s.textContent=n; lab.append(s);
+    box.append(lab);
+  });
+  updatePoolInfo();
+}
+function pool(){
+  const src=$("srcSel").value;
+  return QUESTIONS.filter(q=>selTopics.has(q.t) && (src==="all"||q.s===src));
+}
+function updatePoolInfo(){
+  const p=pool();
+  $("poolInfo").textContent = p.length+" domande disponibili con questi filtri ("+p.filter(q=>q.s==="e").length+" uscite ai compiti).";
+  const re = QUESTIONS.filter(q=>q.s==="e" && selTopics.has(q.t));
+  const reOk = re.filter(q=>store.stats[q.id] && !store.stats[q.id].lastWrong).length;
+  $("realInfo").textContent = re.length+" domande dei compiti con gli argomenti selezionati · già giuste: "+reOk+"/"+re.length+".";
+  const w = QUESTIONS.filter(q=>store.stats[q.id] && store.stats[q.id].lastWrong).length;
+  $("wrongInfo").textContent = w? w+" domande da ripassare (sbagliate l'ultima volta).":"Nessun errore da ripassare per ora.";
+  $("mWrong").disabled = !w; $("mWrong").style.opacity = w?1:.5;
+}
+$("srcSel").value = store.prefs.src || "all";
+$("srcSel").onchange=()=>{ store.prefs.src=$("srcSel").value; save(); updatePoolInfo(); };
+$("nQ").value = store.prefs.n || 20;
+$("nQ").onchange=()=>{ store.prefs.n=+$("nQ").value; save(); };
+$("allTopics").onclick=()=>{ selTopics=new Set(Object.keys(TOPICS)); store.prefs.topics=[...selTopics]; save(); renderChips(); };
+$("noTopics").onclick=()=>{ selTopics=new Set(); store.prefs.topics=[]; save(); renderChips(); };
+
+function renderProgress(){
+  const box=$("progress"); box.innerHTML="";
+  Object.entries(TOPICS).forEach(([k,name])=>{
+    const qs=QUESTIONS.filter(q=>q.t===k);
+    const seen=qs.filter(q=>store.stats[q.id]);
+    const ok=qs.filter(q=>store.stats[q.id] && !store.stats[q.id].lastWrong).length;
+    const pct = qs.length?Math.round(100*ok/qs.length):0;
+    const row=document.createElement("div"); row.className="tb";
+    row.innerHTML='<span></span><span class="track"><i style="width:'+pct+'%"></i></span><span style="text-align:right">'+pct+'%</span>';
+    row.firstChild.textContent=name; row.title=seen.length+"/"+qs.length+" viste, "+ok+" giuste all'ultimo tentativo";
+    box.append(row);
+  });
+}
+$("resetStats").onclick=()=>{ if(confirm("Azzerare tutti i progressi salvati?")){ store.stats={}; save(); renderProgress(); updatePoolInfo(); } };
+
+// ---------- quiz engine ----------
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function prepare(q){
+  const idx=q.o.map((_,i)=>i); const order=q.f?idx:shuffle(idx);
+  return {q, order, correct: order.indexOf(q.a), chosen:null};
+}
+let S=null, timerId=null;
+
+function refEl(q){
+  const r=document.createElement("div"); r.className="ref";
+  const b=document.createElement("b"); b.textContent="📖 Argomento: "+topicName(q.t);
+  r.append(b);
+  if(q.r){ r.append(document.createElement("br"), document.createTextNode("Fonte: "+q.r)); }
+  return r;
+}
+function show(id){ ["home","quiz","results","open","sheet"].forEach(s=>$(s).classList.toggle("hidden", s!==id)); window.scrollTo(0,0); }
+
+function startQuiz(list, mode, title){
+  if(!list.length){ alert("Nessuna domanda con questi filtri."); return; }
+  S={items:list.map(prepare), i:0, mode, title, start:Date.now()};
+  clearInterval(timerId); $("timer").classList.add("hidden");
+  if(mode==="exam"){
+    S.deadline=Date.now()+30*60*1000; $("timer").classList.remove("hidden");
+    timerId=setInterval(tick,1000); tick();
+  }
+  show("quiz"); renderQ();
+}
+function tick(){
+  const ms=S.deadline-Date.now();
+  if(ms<=0){ clearInterval(timerId); finish(); return; }
+  const m=Math.floor(ms/60000), s=Math.floor(ms/1000)%60;
+  $("timer").textContent="⏱ "+m+":"+String(s).padStart(2,"0");
+}
+function renderQ(){
+  const it=S.items[S.i], q=it.q, n=S.items.length;
+  $("qCount").textContent="Domanda "+(S.i+1)+" di "+n;
+  const answered=S.items.filter(x=>x.chosen!==null);
+  $("qScore").textContent = S.mode==="exam" ? answered.length+" risposte date" : "Corrette: "+answered.filter(x=>x.chosen===x.correct).length+"/"+answered.length;
+  $("qBar").style.width=(100*(S.i+1)/n)+"%";
+  $("qSrc").className="tag "+q.s; $("qSrc").textContent= q.s==="e"?"Uscita ai compiti":"Nuova";
+  $("qTopic").textContent=topicName(q.t);
+  $("qText").textContent=q.q;
+  const box=$("qOpts"); box.innerHTML="";
+  const reveal = S.mode!=="exam" && it.chosen!==null;
+  it.order.forEach((oi,pos)=>{
+    const b=document.createElement("button"); b.className="opt";
+    const k=document.createElement("span"); k.className="k"; k.textContent=LETTERS[pos];
+    const t=document.createElement("span"); t.textContent=q.o[oi];
+    b.append(k,t);
+    if(it.chosen===pos) b.classList.add("sel");
+    if(reveal){ b.disabled=true; if(pos===it.correct) b.classList.add("right"); else if(pos===it.chosen) b.classList.add("wrong"); }
+    b.onclick=()=>choose(pos);
+    box.append(b);
+  });
+  const ex=$("qExpl"); ex.innerHTML="";
+  if(reveal){
+    const ok=it.chosen===it.correct;
+    const d=document.createElement("div"); d.className="expl "+(ok?"ok":"ko");
+    const h=document.createElement("b"); h.textContent= ok?"Corretto ✓":"Sbagliato ✗ — risposta corretta: "+LETTERS[it.correct];
+    const p=document.createElement("div"); p.textContent=q.e||"";
+    d.append(h,p); d.append(refEl(q));
+    ex.append(d);
+  }
+  $("prevBtn").disabled = S.i===0;
+  const last = S.i===n-1;
+  $("nextBtn").textContent = last ? (S.mode==="exam"?"Consegna":"Risultati") : "Avanti →";
+  $("nextBtn").disabled = S.mode!=="exam" && it.chosen===null;
+}
+function record(it){
+  const st=store.stats[it.q.id]||{seen:0,wrong:0};
+  st.seen++; const w = it.chosen!==it.correct; if(w) st.wrong++; st.lastWrong=w;
+  store.stats[it.q.id]=st; save();
+}
+function choose(pos){
+  const it=S.items[S.i];
+  if(S.mode!=="exam"){ if(it.chosen!==null) return; it.chosen=pos; record(it); }
+  else it.chosen=pos;
+  renderQ();
+}
+$("nextBtn").onclick=()=>{
+  if(S.i<S.items.length-1){ S.i++; renderQ(); }
+  else{
+    if(S.mode==="exam"){
+      const miss=S.items.filter(x=>x.chosen===null).length;
+      if(miss && !confirm("Ci sono "+miss+" domande senza risposta. Consegnare comunque?")) return;
+    }
+    finish();
+  }
+};
+$("prevBtn").onclick=()=>{ if(S.i>0){ S.i--; renderQ(); } };
+$("quitBtn").onclick=()=>{ if(confirm("Uscire dal quiz? Le risposte già date restano salvate nei progressi.")){ clearInterval(timerId); goHome(); } };
+
+function finish(){
+  clearInterval(timerId);
+  if(S.mode==="exam") S.items.forEach(it=>{ if(it.chosen!==null) record(it); });
+  const n=S.items.length, ok=S.items.filter(x=>x.chosen===x.correct).length;
+  const blank=S.items.filter(x=>x.chosen===null).length;
+  $("resTitle").textContent = S.title;
+  $("resScore").textContent = ok+" / "+n;
+  const mins=Math.round((Date.now()-S.start)/60000);
+  const stats=[["Corrette",ok],["Sbagliate",n-ok-blank],["Senza risposta",blank],["Percentuale",Math.round(100*ok/n)+"%"],["Tempo",mins+" min"]];
+  $("resStats").innerHTML=""; stats.forEach(([l,v])=>{ const d=document.createElement("div"); d.className="stat"; d.innerHTML="<b></b><span></span>"; d.firstChild.textContent=v; d.lastChild.textContent=l; $("resStats").append(d); });
+  const rv=$("resReview"); rv.innerHTML="";
+  const wrongs=S.items.filter(x=>x.chosen!==x.correct);
+  wrongs.forEach(it=>{
+    const d=document.createElement("div"); d.className="review-item";
+    const q=document.createElement("div"); q.style.fontWeight="600"; q.textContent=it.q.q;
+    const y=document.createElement("div"); y.className="ko"; y.textContent="La tua: "+(it.chosen===null?"— nessuna —":it.q.o[it.order[it.chosen]]);
+    const c=document.createElement("div"); c.className="ok"; c.textContent="Corretta: "+it.q.o[it.q.a];
+    const e=document.createElement("div"); e.className="hint"; e.textContent=it.q.e||"";
+    d.append(q,y,c,e,refEl(it.q)); rv.append(d);
+  });
+  if(!wrongs.length) rv.textContent="Nessun errore. Ottimo!";
+  $("retryWrongBtn").classList.toggle("hidden", !wrongs.length);
+  S.lastWrong = wrongs.map(x=>x.q);
+  show("results");
+}
+$("againBtn").onclick=()=>goHome();
+$("homeBtn").onclick=()=>goHome();
+$("retryWrongBtn").onclick=()=>startQuiz(shuffle(S.lastWrong),"practice","Ripasso errori");
+
+function goHome(){ renderChips(); renderProgress(); show("home"); }
+
+$("mPractice").onclick=()=>{
+  const n=Math.max(1, +$("nQ").value||20);
+  startQuiz(shuffle(pool()).slice(0,n),"practice","Allenamento");
+};
+$("mExam").onclick=()=>{
+  // simulazione: 16 domande, soprattutto dai compiti (come il vero test)
+  const p=QUESTIONS.filter(q=>selTopics.has(q.t));
+  const ex=shuffle(p.filter(q=>q.s==="e")), nw=shuffle(p.filter(q=>q.s==="n"));
+  const pick=ex.slice(0,12).concat(nw);
+  startQuiz(shuffle(pick.slice(0,16)),"exam","Simulazione test");
+};
+$("mReal").onclick=()=>{
+  const list=QUESTIONS.filter(q=>q.s==="e" && selTopics.has(q.t));
+  startQuiz(shuffle(list),"practice","Solo domande dei compiti");
+};
+$("mSheet").onclick=()=>{ renderSheet(); show("sheet"); };
+$("sheetHome").onclick=()=>goHome();
+$("sheetPrint").onclick=()=>window.print();
+function renderSheet(){
+  const body=$("sheetBody"); body.innerHTML="";
+  const ex=QUESTIONS.filter(q=>q.s==="e");
+  Object.entries(TOPICS).forEach(([k,name])=>{
+    const qs=ex.filter(q=>q.t===k); if(!qs.length) return;
+    const card=document.createElement("div"); card.className="card";
+    const h=document.createElement("h2"); h.textContent=name+" ("+qs.length+")"; card.append(h);
+    qs.forEach(q=>{
+      const d=document.createElement("div"); d.className="sheet-q";
+      const a=document.createElement("div"); a.className="qq"; a.textContent=q.q;
+      const b=document.createElement("div"); b.className="aa"; b.textContent="✓ "+q.o[q.a];
+      const c=document.createElement("div"); c.className="ee"; c.textContent=q.e||"";
+      const r=document.createElement("div"); r.className="ref"; r.textContent="📖 "+q.r;
+      d.append(a,b,c,r); card.append(d);
+    });
+    body.append(card);
+  });
+}
+$("mWrong").onclick=()=>{
+  const list=QUESTIONS.filter(q=>store.stats[q.id] && store.stats[q.id].lastWrong);
+  startQuiz(shuffle(list),"practice","Ripasso errori");
+};
+
+// ---------- open questions ----------
+let O=null;
+$("mOpen").onclick=()=>{
+  // gli esercizi usciti vengono prima, poi quelli nuovi
+  const list=OPEN_QUESTIONS.filter(q=>selTopics.has(q.t) || true);
+  const ex=list.filter(q=>q.s==="e"), nw=list.filter(q=>q.s==="n");
+  O={items:ex.concat(nw), i:0}; show("open"); renderO();
+};
+function renderO(){
+  const q=O.items[O.i], n=O.items.length;
+  $("oCount").textContent="Esercizio "+(O.i+1)+" di "+n;
+  $("oBar").style.width=(100*(O.i+1)/n)+"%";
+  $("oSrc").className="tag "+q.s; $("oSrc").textContent=q.s==="e"?"Uscito al compito":"Nuovo";
+  $("oTopic").textContent=topicName(q.t);
+  $("oText").textContent=q.q;
+  $("oInput").value=""; $("oAnswer").classList.add("hidden"); $("oAnswer").innerHTML=q.a; // contenuto statico fidato
+  $("oShow").textContent="Mostra soluzione";
+  $("oPrev").disabled = O.i===0;
+  $("oNext").textContent = O.i===n-1 ? "Fine" : "Avanti →";
+}
+$("oShow").onclick=()=>{ const h=$("oAnswer").classList.toggle("hidden"); $("oShow").textContent=h?"Mostra soluzione":"Nascondi soluzione"; };
+$("oNext").onclick=()=>{ if(O.i<O.items.length-1){ O.i++; renderO(); window.scrollTo(0,0);} else goHome(); };
+$("oPrev").onclick=()=>{ if(O.i>0){ O.i--; renderO(); window.scrollTo(0,0);} };
+$("oQuit").onclick=()=>goHome();
+
+// ---------- keyboard ----------
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="TEXTAREA"||e.target.tagName==="INPUT"||e.target.tagName==="SELECT") return;
+  if($("quiz").classList.contains("hidden")) return;
+  const n=parseInt(e.key,10);
+  if(n>=1 && n<=S.items[S.i].order.length){ choose(n-1); e.preventDefault(); }
+  else if(e.key==="Enter" && !$("nextBtn").disabled){ $("nextBtn").click(); e.preventDefault(); }
+  else if(e.key==="ArrowLeft" && !$("prevBtn").disabled){ $("prevBtn").click(); }
+});
+
+goHome();
+})();
+</script>
+</body>
+</html>
